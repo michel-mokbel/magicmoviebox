@@ -1,0 +1,46 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/mohamadsafar/Library/Developer/Xcode/DerivedData/Runner-ehrdumzsqrutpjfpfwderwalbxkq/Build/Intermediates.noindex/ArchiveIntermediates/Runner/IntermediateBuildFilesPath/UninstalledProducts/iphoneos/share_plus.framework/share_plus'
+relocations:
+  - { offset: 0x5C80C, size: 0x8, addend: 0x0, symName: _share_plusVersionString, symObjAddr: 0x0, symBinAddr: 0x6D60, symSize: 0x0 }
+  - { offset: 0x5C841, size: 0x8, addend: 0x0, symName: _share_plusVersionNumber, symObjAddr: 0x28, symBinAddr: 0x6D88, symSize: 0x0 }
+  - { offset: 0x5C87E, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessCompanion initWithResult:]', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0x78 }
+  - { offset: 0x5C9D9, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessCompanion initWithResult:]', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0x78 }
+  - { offset: 0x5CA20, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessCompanion dealloc]', symObjAddr: 0x78, symBinAddr: 0x4078, symSize: 0xB4 }
+  - { offset: 0x5CA82, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessCompanion result]', symObjAddr: 0x12C, symBinAddr: 0x412C, symSize: 0xC }
+  - { offset: 0x5CAB9, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessCompanion setResult:]', symObjAddr: 0x138, symBinAddr: 0x4138, symSize: 0x8 }
+  - { offset: 0x5CAF8, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessCompanion activityType]', symObjAddr: 0x140, symBinAddr: 0x4140, symSize: 0xC }
+  - { offset: 0x5CB2F, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessCompanion setActivityType:]', symObjAddr: 0x14C, symBinAddr: 0x414C, symSize: 0x8 }
+  - { offset: 0x5CB6E, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessCompanion completed]', symObjAddr: 0x154, symBinAddr: 0x4154, symSize: 0xC }
+  - { offset: 0x5CBA5, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessCompanion setCompleted:]', symObjAddr: 0x160, symBinAddr: 0x4160, symSize: 0x8 }
+  - { offset: 0x5CBE2, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessCompanion .cxx_destruct]', symObjAddr: 0x168, symBinAddr: 0x4168, symSize: 0x30 }
+  - { offset: 0x5CC15, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessController companion]', symObjAddr: 0x198, symBinAddr: 0x4198, symSize: 0x10 }
+  - { offset: 0x5CC4C, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessController setCompanion:]', symObjAddr: 0x1A8, symBinAddr: 0x41A8, symSize: 0xC }
+  - { offset: 0x5CC8B, size: 0x8, addend: 0x0, symName: '-[UIActivityViewSuccessController .cxx_destruct]', symObjAddr: 0x1B4, symBinAddr: 0x41B4, symSize: 0x14 }
+  - { offset: 0x5CCBE, size: 0x8, addend: 0x0, symName: '-[SharePlusData init]', symObjAddr: 0x1C8, symBinAddr: 0x41C8, symSize: 0x50 }
+  - { offset: 0x5CCF9, size: 0x8, addend: 0x0, symName: '-[SharePlusData initWithSubject:text:]', symObjAddr: 0x218, symBinAddr: 0x4218, symSize: 0xBC }
+  - { offset: 0x5CD50, size: 0x8, addend: 0x0, symName: '-[SharePlusData initWithFile:mimeType:]', symObjAddr: 0x2D4, symBinAddr: 0x42D4, symSize: 0xA4 }
+  - { offset: 0x5CDA7, size: 0x8, addend: 0x0, symName: '-[SharePlusData initWithFile:mimeType:subject:]', symObjAddr: 0x378, symBinAddr: 0x4378, symSize: 0xEC }
+  - { offset: 0x5CE0E, size: 0x8, addend: 0x0, symName: '-[SharePlusData activityViewControllerPlaceholderItem:]', symObjAddr: 0x464, symBinAddr: 0x4464, symSize: 0xC }
+  - { offset: 0x5CE51, size: 0x8, addend: 0x0, symName: '-[SharePlusData activityViewController:itemForActivityType:]', symObjAddr: 0x470, symBinAddr: 0x4470, symSize: 0xD0 }
+  - { offset: 0x5CED3, size: 0x8, addend: 0x0, symName: '-[SharePlusData activityViewController:subjectForActivityType:]', symObjAddr: 0x540, symBinAddr: 0x4540, symSize: 0x8 }
+  - { offset: 0x5CF22, size: 0x8, addend: 0x0, symName: '-[SharePlusData activityViewController:thumbnailImageForActivityType:suggestedSize:]', symObjAddr: 0x548, symBinAddr: 0x4548, symSize: 0xD0 }
+  - { offset: 0x5CF95, size: 0x8, addend: 0x0, symName: '-[SharePlusData imageWithImage:scaledToSize:]', symObjAddr: 0x618, symBinAddr: 0x4618, symSize: 0x78 }
+  - { offset: 0x5D049, size: 0x8, addend: 0x0, symName: '-[SharePlusData activityViewControllerLinkMetadata:]', symObjAddr: 0x690, symBinAddr: 0x4690, symSize: 0x28C }
+  - { offset: 0x5D10A, size: 0x8, addend: 0x0, symName: '-[SharePlusData subject]', symObjAddr: 0x91C, symBinAddr: 0x491C, symSize: 0x8 }
+  - { offset: 0x5D141, size: 0x8, addend: 0x0, symName: '-[SharePlusData text]', symObjAddr: 0x924, symBinAddr: 0x4924, symSize: 0x8 }
+  - { offset: 0x5D178, size: 0x8, addend: 0x0, symName: '-[SharePlusData path]', symObjAddr: 0x92C, symBinAddr: 0x492C, symSize: 0x8 }
+  - { offset: 0x5D1AF, size: 0x8, addend: 0x0, symName: '-[SharePlusData mimeType]', symObjAddr: 0x934, symBinAddr: 0x4934, symSize: 0x8 }
+  - { offset: 0x5D1E6, size: 0x8, addend: 0x0, symName: '-[SharePlusData .cxx_destruct]', symObjAddr: 0x93C, symBinAddr: 0x493C, symSize: 0x48 }
+  - { offset: 0x5D219, size: 0x8, addend: 0x0, symName: '+[FPPSharePlusPlugin registerWithRegistrar:]', symObjAddr: 0x984, symBinAddr: 0x4984, symSize: 0xB4 }
+  - { offset: 0x5D26C, size: 0x8, addend: 0x0, symName: '___44+[FPPSharePlusPlugin registerWithRegistrar:]_block_invoke', symObjAddr: 0xA38, symBinAddr: 0x4A38, symSize: 0x768 }
+  - { offset: 0x5D57C, size: 0x8, addend: 0x0, symName: _RootViewController, symObjAddr: 0x11A0, symBinAddr: 0x51A0, symSize: 0x274 }
+  - { offset: 0x5D5F3, size: 0x8, addend: 0x0, symName: _TopViewControllerForViewController, symObjAddr: 0x1414, symBinAddr: 0x5414, symSize: 0xB8 }
+  - { offset: 0x5D62C, size: 0x8, addend: 0x0, symName: '+[FPPSharePlusPlugin share:withSubject:withController:atSource:toResult:]', symObjAddr: 0x14CC, symBinAddr: 0x54CC, symSize: 0x35C }
+  - { offset: 0x5D7A5, size: 0x8, addend: 0x0, symName: '___73+[FPPSharePlusPlugin share:withSubject:withController:atSource:toResult:]_block_invoke', symObjAddr: 0x1828, symBinAddr: 0x5828, symSize: 0x34 }
+  - { offset: 0x5D81F, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s, symObjAddr: 0x185C, symBinAddr: 0x585C, symSize: 0x8 }
+  - { offset: 0x5D846, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s, symObjAddr: 0x1864, symBinAddr: 0x5864, symSize: 0x8 }
+  - { offset: 0x5D865, size: 0x8, addend: 0x0, symName: '+[FPPSharePlusPlugin shareUri:withController:atSource:toResult:]', symObjAddr: 0x186C, symBinAddr: 0x586C, symSize: 0x12C }
+  - { offset: 0x5D8EA, size: 0x8, addend: 0x0, symName: '+[FPPSharePlusPlugin shareText:subject:withController:atSource:toResult:]', symObjAddr: 0x1998, symBinAddr: 0x5998, symSize: 0x158 }
+  - { offset: 0x5D980, size: 0x8, addend: 0x0, symName: '+[FPPSharePlusPlugin shareFiles:withMimeType:withSubject:withText:withController:atSource:toResult:]', symObjAddr: 0x1AF0, symBinAddr: 0x5AF0, symSize: 0x1FC }
+...

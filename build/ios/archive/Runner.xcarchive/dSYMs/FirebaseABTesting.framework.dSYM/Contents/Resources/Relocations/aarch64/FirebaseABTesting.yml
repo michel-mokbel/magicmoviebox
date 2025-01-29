@@ -1,0 +1,91 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/mohamadsafar/Library/Developer/Xcode/DerivedData/Runner-ehrdumzsqrutpjfpfwderwalbxkq/Build/Intermediates.noindex/ArchiveIntermediates/Runner/IntermediateBuildFilesPath/UninstalledProducts/iphoneos/FirebaseABTesting.framework/FirebaseABTesting'
+relocations:
+  - { offset: 0x58CFF, size: 0x8, addend: 0x0, symName: _FirebaseABTestingVersionString, symObjAddr: 0x0, symBinAddr: 0x7EE0, symSize: 0x0 }
+  - { offset: 0x58D34, size: 0x8, addend: 0x0, symName: _FirebaseABTestingVersionNumber, symObjAddr: 0x30, symBinAddr: 0x7F10, symSize: 0x0 }
+  - { offset: 0x58D71, size: 0x8, addend: 0x0, symName: '+[ABTConditionalUserPropertyController sharedInstanceWithAnalytics:]', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0xA8 }
+  - { offset: 0x58D84, size: 0x8, addend: 0x0, symName: '+[ABTConditionalUserPropertyController sharedInstanceWithAnalytics:]', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0xA8 }
+  - { offset: 0x58DAE, size: 0x8, addend: 0x0, symName: '_sharedInstanceWithAnalytics:.sharedInstance', symObjAddr: 0x7050, symBinAddr: 0x11688, symSize: 0x0 }
+  - { offset: 0x58DC4, size: 0x8, addend: 0x0, symName: '_sharedInstanceWithAnalytics:.onceToken', symObjAddr: 0x7058, symBinAddr: 0x11690, symSize: 0x0 }
+  - { offset: 0x58F0B, size: 0x8, addend: 0x0, symName: '___68+[ABTConditionalUserPropertyController sharedInstanceWithAnalytics:]_block_invoke', symObjAddr: 0xA8, symBinAddr: 0x40A8, symSize: 0x40 }
+  - { offset: 0x58F46, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s, symObjAddr: 0xE8, symBinAddr: 0x40E8, symSize: 0x8 }
+  - { offset: 0x58F6D, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s, symObjAddr: 0xF0, symBinAddr: 0x40F0, symSize: 0x8 }
+  - { offset: 0x58F8C, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController initWithAnalytics:]', symObjAddr: 0xF8, symBinAddr: 0x40F8, symSize: 0x98 }
+  - { offset: 0x5900A, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController experimentsWithOrigin:]', symObjAddr: 0x190, symBinAddr: 0x4190, symSize: 0x10 }
+  - { offset: 0x5904F, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController clearExperiment:variantID:withOrigin:payload:events:]', symObjAddr: 0x1A0, symBinAddr: 0x41A0, symSize: 0x1C8 }
+  - { offset: 0x59109, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController setExperimentWithOrigin:payload:events:policy:]', symObjAddr: 0x368, symBinAddr: 0x4368, symSize: 0x498 }
+  - { offset: 0x592E3, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController createExperimentFromOrigin:payload:events:]', symObjAddr: 0x800, symBinAddr: 0x4800, symSize: 0x5B0 }
+  - { offset: 0x5941A, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController eventDictionaryWithOrigin:eventName:params:]', symObjAddr: 0xDB0, symBinAddr: 0x4DB0, symSize: 0x148 }
+  - { offset: 0x5947D, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController experimentIDOfExperiment:]', symObjAddr: 0xEF8, symBinAddr: 0x4EF8, symSize: 0x3C }
+  - { offset: 0x594C0, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController variantIDOfExperiment:]', symObjAddr: 0xF34, symBinAddr: 0x4F34, symSize: 0x3C }
+  - { offset: 0x59503, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController maxNumberOfExperimentsOfOrigin:]', symObjAddr: 0xF70, symBinAddr: 0x4F70, symSize: 0x10 }
+  - { offset: 0x59548, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController logEventWithOrigin:payload:events:]', symObjAddr: 0xF80, symBinAddr: 0x4F80, symSize: 0x1D8 }
+  - { offset: 0x595CE, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController isExperiment:theSameAsPayload:]', symObjAddr: 0x1158, symBinAddr: 0x5158, symSize: 0xFC }
+  - { offset: 0x5964A, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController overflowPolicyWithPayload:originalPolicy:]', symObjAddr: 0x1254, symBinAddr: 0x5254, symSize: 0x58 }
+  - { offset: 0x596A0, size: 0x8, addend: 0x0, symName: '-[ABTConditionalUserPropertyController .cxx_destruct]', symObjAddr: 0x12AC, symBinAddr: 0x52AC, symSize: 0x30 }
+  - { offset: 0x5990B, size: 0x8, addend: 0x0, symName: '-[ABTExperimentLite initWithExperimentId:]', symObjAddr: 0x0, symBinAddr: 0x52DC, symSize: 0x78 }
+  - { offset: 0x59AE4, size: 0x8, addend: 0x0, symName: '-[ABTExperimentLite initWithExperimentId:]', symObjAddr: 0x0, symBinAddr: 0x52DC, symSize: 0x78 }
+  - { offset: 0x59B2B, size: 0x8, addend: 0x0, symName: '-[ABTExperimentLite experimentId]', symObjAddr: 0x78, symBinAddr: 0x5354, symSize: 0x8 }
+  - { offset: 0x59B62, size: 0x8, addend: 0x0, symName: '-[ABTExperimentLite .cxx_destruct]', symObjAddr: 0x80, symBinAddr: 0x535C, symSize: 0xC }
+  - { offset: 0x59B95, size: 0x8, addend: 0x0, symName: '+[ABTExperimentPayload experimentStartTimeFormatter]', symObjAddr: 0x8C, symBinAddr: 0x5368, symSize: 0xD0 }
+  - { offset: 0x59BD8, size: 0x8, addend: 0x0, symName: '+[ABTExperimentPayload parseFromData:]', symObjAddr: 0x15C, symBinAddr: 0x5438, symSize: 0x74 }
+  - { offset: 0x59C3B, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload initWithDictionary:]', symObjAddr: 0x1D0, symBinAddr: 0x54AC, symSize: 0x538 }
+  - { offset: 0x59D3C, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload clearTriggerEvent]', symObjAddr: 0x708, symBinAddr: 0x59E4, symSize: 0x10 }
+  - { offset: 0x59D6F, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload overflowPolicyIsValid]', symObjAddr: 0x718, symBinAddr: 0x59F4, symSize: 0x40 }
+  - { offset: 0x59DA6, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload setOverflowPolicy:]', symObjAddr: 0x758, symBinAddr: 0x5A34, symSize: 0x8 }
+  - { offset: 0x59DE5, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload experimentId]', symObjAddr: 0x760, symBinAddr: 0x5A3C, symSize: 0x8 }
+  - { offset: 0x59E1C, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload variantId]', symObjAddr: 0x768, symBinAddr: 0x5A44, symSize: 0x8 }
+  - { offset: 0x59E53, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload experimentStartTimeMillis]', symObjAddr: 0x770, symBinAddr: 0x5A4C, symSize: 0x8 }
+  - { offset: 0x59E8A, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload triggerEvent]', symObjAddr: 0x778, symBinAddr: 0x5A54, symSize: 0x8 }
+  - { offset: 0x59EC1, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload triggerTimeoutMillis]', symObjAddr: 0x780, symBinAddr: 0x5A5C, symSize: 0x8 }
+  - { offset: 0x59EF8, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload timeToLiveMillis]', symObjAddr: 0x788, symBinAddr: 0x5A64, symSize: 0x8 }
+  - { offset: 0x59F2F, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload setEventToLog]', symObjAddr: 0x790, symBinAddr: 0x5A6C, symSize: 0x8 }
+  - { offset: 0x59F66, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload activateEventToLog]', symObjAddr: 0x798, symBinAddr: 0x5A74, symSize: 0x8 }
+  - { offset: 0x59F9D, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload clearEventToLog]', symObjAddr: 0x7A0, symBinAddr: 0x5A7C, symSize: 0x8 }
+  - { offset: 0x59FD4, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload timeoutEventToLog]', symObjAddr: 0x7A8, symBinAddr: 0x5A84, symSize: 0x8 }
+  - { offset: 0x5A00B, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload ttlExpiryEventToLog]', symObjAddr: 0x7B0, symBinAddr: 0x5A8C, symSize: 0x8 }
+  - { offset: 0x5A042, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload overflowPolicy]', symObjAddr: 0x7B8, symBinAddr: 0x5A94, symSize: 0x8 }
+  - { offset: 0x5A079, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload ongoingExperiments]', symObjAddr: 0x7C0, symBinAddr: 0x5A9C, symSize: 0x8 }
+  - { offset: 0x5A0B0, size: 0x8, addend: 0x0, symName: '-[ABTExperimentPayload .cxx_destruct]', symObjAddr: 0x7C8, symBinAddr: 0x5AA4, symSize: 0x84 }
+  - { offset: 0x5A1A2, size: 0x8, addend: 0x0, symName: _ABTDeserializeExperimentPayload, symObjAddr: 0x0, symBinAddr: 0x5B28, symSize: 0xDC }
+  - { offset: 0x5A1C6, size: 0x8, addend: 0x0, symName: _kFIRLoggerABTesting, symObjAddr: 0x1850, symBinAddr: 0xC060, symSize: 0x0 }
+  - { offset: 0x5A1E7, size: 0x8, addend: 0x0, symName: _FIRDefaultExperimentOverflowPolicy, symObjAddr: 0x18C8, symBinAddr: 0x7F28, symSize: 0x0 }
+  - { offset: 0x5A2B7, size: 0x8, addend: 0x0, symName: _ABTDeserializeExperimentPayload, symObjAddr: 0x0, symBinAddr: 0x5B28, symSize: 0xDC }
+  - { offset: 0x5A329, size: 0x8, addend: 0x0, symName: _ABTExperimentsToSetFromPayloads, symObjAddr: 0xDC, symBinAddr: 0x5C04, symSize: 0x298 }
+  - { offset: 0x5A43E, size: 0x8, addend: 0x0, symName: _ABTExperimentsToClearFromPayloads, symObjAddr: 0x374, symBinAddr: 0x5E9C, symSize: 0x294 }
+  - { offset: 0x5A538, size: 0x8, addend: 0x0, symName: '+[FIRExperimentController load]', symObjAddr: 0x608, symBinAddr: 0x6130, symSize: 0x18 }
+  - { offset: 0x5A56B, size: 0x8, addend: 0x0, symName: '+[FIRExperimentController componentsToRegister]', symObjAddr: 0x620, symBinAddr: 0x6148, symSize: 0xA8 }
+  - { offset: 0x5A5BE, size: 0x8, addend: 0x0, symName: '___47+[FIRExperimentController componentsToRegister]_block_invoke', symObjAddr: 0x6C8, symBinAddr: 0x61F0, symSize: 0x68 }
+  - { offset: 0x5A628, size: 0x8, addend: 0x0, symName: '-[FIRExperimentController initWithAnalytics:]', symObjAddr: 0x730, symBinAddr: 0x6258, symSize: 0x78 }
+  - { offset: 0x5A66F, size: 0x8, addend: 0x0, symName: '+[FIRExperimentController sharedInstance]', symObjAddr: 0x7A8, symBinAddr: 0x62D0, symSize: 0x88 }
+  - { offset: 0x5A6C2, size: 0x8, addend: 0x0, symName: '-[FIRExperimentController updateExperimentsWithServiceOrigin:events:policy:lastStartTime:payloads:completionHandler:]', symObjAddr: 0x830, symBinAddr: 0x6358, symSize: 0x190 }
+  - { offset: 0x5A7C8, size: 0x8, addend: 0x0, symName: '___117-[FIRExperimentController updateExperimentsWithServiceOrigin:events:policy:lastStartTime:payloads:completionHandler:]_block_invoke', symObjAddr: 0x9C0, symBinAddr: 0x64E8, symSize: 0x40 }
+  - { offset: 0x5A882, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48s56b64w, symObjAddr: 0xA00, symBinAddr: 0x6528, symSize: 0x50 }
+  - { offset: 0x5A8AB, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s56s64w, symObjAddr: 0xA50, symBinAddr: 0x6578, symSize: 0x40 }
+  - { offset: 0x5A8CA, size: 0x8, addend: 0x0, symName: '-[FIRExperimentController updateExperimentConditionalUserPropertiesWithServiceOrigin:events:policy:lastStartTime:payloads:completionHandler:]', symObjAddr: 0xA90, symBinAddr: 0x65B8, symSize: 0x480 }
+  - { offset: 0x5AA8B, size: 0x8, addend: 0x0, symName: '-[FIRExperimentController latestExperimentStartTimestampBetweenTimestamp:andPayloads:]', symObjAddr: 0xF10, symBinAddr: 0x6A38, symSize: 0x198 }
+  - { offset: 0x5AB3E, size: 0x8, addend: 0x0, symName: '-[FIRExperimentController validateRunningExperimentsForServiceOrigin:runningExperimentPayloads:]', symObjAddr: 0x10A8, symBinAddr: 0x6BD0, symSize: 0x2E0 }
+  - { offset: 0x5AC50, size: 0x8, addend: 0x0, symName: '-[FIRExperimentController activateExperiment:forServiceOrigin:]', symObjAddr: 0x1388, symBinAddr: 0x6EB0, symSize: 0xB4 }
+  - { offset: 0x5ACC8, size: 0x8, addend: 0x0, symName: '-[FIRExperimentController analytics]', symObjAddr: 0x143C, symBinAddr: 0x6F64, symSize: 0x8 }
+  - { offset: 0x5ACFF, size: 0x8, addend: 0x0, symName: '-[FIRExperimentController setAnalytics:]', symObjAddr: 0x1444, symBinAddr: 0x6F6C, symSize: 0xC }
+  - { offset: 0x5AD40, size: 0x8, addend: 0x0, symName: '-[FIRExperimentController .cxx_destruct]', symObjAddr: 0x1450, symBinAddr: 0x6F78, symSize: 0xC }
+  - { offset: 0x5B1CE, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents init]', symObjAddr: 0x0, symBinAddr: 0x6F84, symSize: 0xAC }
+  - { offset: 0x5B1E8, size: 0x8, addend: 0x0, symName: _FIRSetExperimentEventName, symObjAddr: 0x448, symBinAddr: 0xC0D8, symSize: 0x0 }
+  - { offset: 0x5B208, size: 0x8, addend: 0x0, symName: _FIRActivateExperimentEventName, symObjAddr: 0x450, symBinAddr: 0xC0E0, symSize: 0x0 }
+  - { offset: 0x5B21E, size: 0x8, addend: 0x0, symName: _FIRClearExperimentEventName, symObjAddr: 0x458, symBinAddr: 0xC0E8, symSize: 0x0 }
+  - { offset: 0x5B234, size: 0x8, addend: 0x0, symName: _FIRTimeoutExperimentEventName, symObjAddr: 0x460, symBinAddr: 0xC0F0, symSize: 0x0 }
+  - { offset: 0x5B24A, size: 0x8, addend: 0x0, symName: _FIRExpireExperimentEventName, symObjAddr: 0x468, symBinAddr: 0xC0F8, symSize: 0x0 }
+  - { offset: 0x5B2E2, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents init]', symObjAddr: 0x0, symBinAddr: 0x6F84, symSize: 0xAC }
+  - { offset: 0x5B319, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents setSetExperimentEventName:]', symObjAddr: 0xAC, symBinAddr: 0x7030, symSize: 0x6C }
+  - { offset: 0x5B35C, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents setActivateExperimentEventName:]', symObjAddr: 0x118, symBinAddr: 0x709C, symSize: 0x6C }
+  - { offset: 0x5B39F, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents setClearExperimentEventName:]', symObjAddr: 0x184, symBinAddr: 0x7108, symSize: 0x6C }
+  - { offset: 0x5B3E2, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents setTimeoutExperimentEventName:]', symObjAddr: 0x1F0, symBinAddr: 0x7174, symSize: 0x6C }
+  - { offset: 0x5B425, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents setExpireExperimentEventName:]', symObjAddr: 0x25C, symBinAddr: 0x71E0, symSize: 0x6C }
+  - { offset: 0x5B468, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents setExperimentEventName]', symObjAddr: 0x2C8, symBinAddr: 0x724C, symSize: 0x8 }
+  - { offset: 0x5B49F, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents activateExperimentEventName]', symObjAddr: 0x2D0, symBinAddr: 0x7254, symSize: 0x8 }
+  - { offset: 0x5B4D6, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents clearExperimentEventName]', symObjAddr: 0x2D8, symBinAddr: 0x725C, symSize: 0x8 }
+  - { offset: 0x5B50D, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents timeoutExperimentEventName]', symObjAddr: 0x2E0, symBinAddr: 0x7264, symSize: 0x8 }
+  - { offset: 0x5B544, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents expireExperimentEventName]', symObjAddr: 0x2E8, symBinAddr: 0x726C, symSize: 0x8 }
+  - { offset: 0x5B57B, size: 0x8, addend: 0x0, symName: '-[FIRLifecycleEvents .cxx_destruct]', symObjAddr: 0x2F0, symBinAddr: 0x7274, symSize: 0x54 }
+...
