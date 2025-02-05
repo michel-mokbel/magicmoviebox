@@ -4,6 +4,7 @@ import 'package:moviemagicbox/assets/ads/interstitial_ad.dart';
 import 'package:moviemagicbox/assets/ads/native_ad.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../repositories/dashboard_repository.dart';
+import '../services/favorites_service.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> movie; // Movie data passed dynamically
@@ -16,15 +17,36 @@ class MovieDetailsScreen extends StatefulWidget {
 
 class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late Future<Map<String, List<Map<String, dynamic>>>> dashboardData;
-    final InterstitialAdManager interstitialAdManager = InterstitialAdManager();
-
+  final InterstitialAdManager interstitialAdManager = InterstitialAdManager();
+  bool _isFavorite = false;
+  late String _movieId;
 
   @override
   void initState() {
     super.initState();
-        interstitialAdManager.loadInterstitialAd();
-
+    _movieId = widget.movie['imdbID'] ?? '${widget.movie["title"]}_${widget.movie["year"]}';
+    interstitialAdManager.loadInterstitialAd();
     dashboardData = DashboardRepository.fetchDashboardData();
+    _checkFavoriteStatus();
+  }
+
+  Future<void> _checkFavoriteStatus() async {
+    final isFav = await FavoritesService.isFavorite(_movieId);
+    setState(() {
+      _isFavorite = isFav;
+    });
+  }
+
+  Future<void> _toggleFavorite() async {
+    setState(() {
+      _isFavorite = !_isFavorite;
+    });
+
+    if (_isFavorite) {
+      await FavoritesService.addToFavorites(widget.movie);
+    } else {
+      await FavoritesService.removeFromFavorites(_movieId);
+    }
   }
 
   void _launchYouTubeSearch(String query) async {
@@ -53,6 +75,15 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isFavorite ? Icons.watch_later : Icons.watch_later_outlined,
+              color: Colors.red,
+            ),
+            onPressed: _toggleFavorite,
+          ),
+        ],
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
