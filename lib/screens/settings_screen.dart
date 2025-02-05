@@ -46,7 +46,7 @@ class _SettingsState extends State<Settings> {
   }
 
   void shareApp(BuildContext context) {
-    const String appUrl = 'https://apps.apple.com/app/id';
+    const String appUrl = 'https://apps.apple.com/us/app/movie-magic-box/id6741157554';
     Share.share(appUrl);
   }
 
