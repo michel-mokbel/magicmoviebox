@@ -51,7 +51,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Error loading favorites: ${snapshot.error}',
+                'Error loading watch later: ${snapshot.error}',
                 style: const TextStyle(color: Colors.white),
               ),
             );
@@ -62,7 +62,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           if (favorites.isEmpty) {
             return const Center(
               child: Text(
-                'No favorites yet',
+                'No watch later yet',
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             );

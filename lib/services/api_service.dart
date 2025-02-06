@@ -17,7 +17,7 @@ class ApiService {
             }
           ]
         }
-      ],
+      ],     
       "generationConfig": {
         "stopSequences": ["Title"],
         "temperature": 0.5,

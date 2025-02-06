@@ -35,9 +35,15 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-6638245178785483~1159293177</string>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
+	<key>GMSApiKey</key>
+	<string>AIzaSyCsiw4EUdPsStONc7B3rLOh9gwxdP6IE7U</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>https</string>
+		<string>comgooglemaps</string>
+		<string>googlechromes</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -72,5 +78,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to find nearby cinemas and theaters.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need your location to find nearby cinemas and theaters.</string>
 </dict>
 </plist>

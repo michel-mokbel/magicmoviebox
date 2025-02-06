@@ -53,14 +53,22 @@ class MovieService {
     final prefs = await SharedPreferences.getInstance();
     final cacheKey = "all_$type";
 
-    // Check cache
-    if (prefs.containsKey(cacheKey)) {
-      return List<Map<String, dynamic>>.from(
-          jsonDecode(prefs.getString(cacheKey)!));
-    }
-
-    // Fetch from API if not cached
     try {
+      // Check cache
+      if (prefs.containsKey(cacheKey)) {
+        final cachedData = prefs.getString(cacheKey);
+        if (cachedData != null) {
+          try {
+            return List<Map<String, dynamic>>.from(jsonDecode(cachedData));
+          } catch (e) {
+            print("Error parsing cached data: $e");
+            // If cache is corrupted, remove it
+            await prefs.remove(cacheKey);
+          }
+        }
+      }
+
+      // Fetch from API if not cached
       final requestBody = {
         "action": "getAllByType",
         "parameters": {"type": type},
@@ -70,20 +78,20 @@ class MovieService {
         Uri.parse(lambdaBaseUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
-      );
+      ).timeout(const Duration(seconds: 10)); // Add timeout
 
       if (response.statusCode == 200) {
         final data = List<Map<String, dynamic>>.from(jsonDecode(response.body));
-
         // Save to cache
         prefs.setString(cacheKey, jsonEncode(data));
         return data;
       } else {
-        throw Exception("Failed to fetch all data: ${response.statusCode}");
+        print("Failed to fetch all data: ${response.statusCode}");
+        return [];
       }
     } catch (e) {
       print("Error fetching all by type: $e");
-      rethrow;
+      return []; // Return empty list instead of throwing
     }
   }
 }

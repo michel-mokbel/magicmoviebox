@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moviemagicbox/screens/search_screen.dart';
 import 'package:moviemagicbox/screens/settings_screen.dart';
 import 'package:moviemagicbox/screens/favorites_screen.dart';
+import 'package:moviemagicbox/screens/cinemas_screen.dart';
 import 'package:flutter_html/flutter_html.dart';
 import '../services/api_service.dart';
 import 'dashboard_screen.dart';
@@ -19,6 +20,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> screens = [
     const DashboardScreen(),
     const SearchScreen(),
+    const CinemasScreen(),
     const FavoritesScreen(),
     const Settings(),
   ];
@@ -227,6 +229,7 @@ class _MainScreenState extends State<MainScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Dashboard"),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.theater_comedy), label: "Cinemas"),
           BottomNavigationBarItem(icon: Icon(Icons.watch_later), label: "Watch Later"),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
         ],

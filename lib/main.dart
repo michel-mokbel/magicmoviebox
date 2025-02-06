@@ -10,6 +10,7 @@ import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'services/notification_service.dart';
+import 'package:geolocator/geolocator.dart';
 
 Future<void> preloadCache() async {
   final prefs = await SharedPreferences.getInstance();
@@ -21,29 +22,67 @@ Future<void> preloadCache() async {
 }
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    // Ensure Flutter bindings are initialized first
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Configure test device for ads
-  // RequestConfiguration configuration = RequestConfiguration(
-  //   testDeviceIds: ['00008030-0004481C1185402E'],
-  // );
-  // MobileAds.instance.updateRequestConfiguration(configuration);
+    // Initialize Firebase with error handling
+    try {
+      await Firebase.initializeApp();
+    } catch (e) {
+      print('Failed to initialize Firebase: $e');
+      // Continue without Firebase
+    }
 
-  await Firebase.initializeApp();
+    // Initialize notifications with error handling
+    try {
+      await NotificationService.instance.init();
+    } catch (e) {
+      print('Failed to initialize notifications: $e');
+      // Continue without notifications
+    }
 
-  // Request App Tracking Transparency permission
-  TrackingStatus status = await AppTrackingTransparency.requestTrackingAuthorization();
-  bool isTrackingAllowed = status == TrackingStatus.authorized;
+    // Request tracking authorization with error handling
+    try {
+      final status = await AppTrackingTransparency.requestTrackingAuthorization();
+      if (status == TrackingStatus.authorized) {
+        final devKey = await fetchDevKeyFromRemoteConfig().catchError((e) {
+          print('Error fetching dev key: $e');
+          return 'TVuiYiPd4Bu5wzUuZwTymX'; // Fallback to default key
+        });
+        initAppsFlyer(devKey, true);
+      }
+    } catch (e) {
+      print('Failed to initialize tracking: $e');
+      // Continue without tracking
+    }
 
-  if (isTrackingAllowed) {
-    // Fetch AppsFlyer dev_key from Firebase Remote Config
-    String devKey = await fetchDevKeyFromRemoteConfig();
-    initAppsFlyer(devKey, isTrackingAllowed);
+    // Check and request location permissions
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+    } catch (e) {
+      print('Failed to initialize location services: $e');
+      // Continue without location services
+    }
+
+    // Preload cache with error handling
+    try {
+      await preloadCache();
+    } catch (e) {
+      print('Failed to preload cache: $e');
+      // Continue without preloaded cache
+    }
+
+    // Run app
+    runApp(const MyApp());
+  } catch (e) {
+    print('Fatal error during initialization: $e');
+    // Run app with minimal initialization
+    runApp(const MyApp());
   }
-
-  await preloadCache();
-  await NotificationService.instance.init();
-  runApp(const MyApp());
 }
 
 Future<String> fetchDevKeyFromRemoteConfig() async {

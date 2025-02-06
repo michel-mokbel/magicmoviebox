@@ -6,6 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../repositories/dashboard_repository.dart';
 import '../services/favorites_service.dart';
 import '../services/notification_service.dart';
+import '../services/review_service.dart';
+import 'review_screen.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> movie; // Movie data passed dynamically
@@ -18,6 +20,8 @@ class MovieDetailsScreen extends StatefulWidget {
 
 class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late Future<Map<String, List<Map<String, dynamic>>>> dashboardData;
+  late Future<Review?> userReview;
+  late Future<List<Review>> allReviews;
   // final InterstitialAdManager AdManager = InterstitialAdManager();
   bool _isFavorite = false;
   late String _movieId;
@@ -29,6 +33,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     // interstitialAdManager.loadInterstitialAd();
     dashboardData = DashboardRepository.fetchDashboardData();
     _checkFavoriteStatus();
+    _loadReviews();
+  }
+
+  void _loadReviews() {
+    userReview = ReviewService.getReviewForMedia(_movieId);
+    allReviews = ReviewService.getReviewsForMedia(_movieId);
   }
 
   Future<void> _checkFavoriteStatus() async {
@@ -102,6 +112,157 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     )) {
       throw Exception('Could not launch $url');
     }
+  }
+
+  Widget _buildReviewsSection() {
+    return FutureBuilder<Review?>(
+      future: userReview,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator(color: Colors.red));
+        }
+
+        final existingReview = snapshot.data;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Reviews',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReviewScreen(
+                            media: widget.movie,
+                            type: widget.movie['Type'] ?? 'movie',
+                            existingReview: existingReview,
+                          ),
+                        ),
+                      );
+
+                      if (result == true) {
+                        setState(() {
+                          _loadReviews();
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      existingReview == null ? 'Write Review' : 'Edit Review',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            FutureBuilder<List<Review>>(
+              future: allReviews,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator(color: Colors.red));
+                }
+
+                final reviews = snapshot.data ?? [];
+
+                if (reviews.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'No reviews yet. Be the first to review!',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: reviews.length,
+                  itemBuilder: (context, index) {
+                    final review = reviews[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      color: Colors.grey[900],
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    review.title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.star, color: Colors.amber, size: 20),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      review.rating.toStringAsFixed(1),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              review.content,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Posted on ${_formatDate(review.timestamp)}',
+                              style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   @override
@@ -203,7 +364,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
             // Trailers and More Like This
             DefaultTabController(
-              length: 2,
+              length: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -214,6 +375,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     indicatorColor: Colors.red,
                     tabs: [
                       Tab(text: "Trailers"),
+                      Tab(text: "Reviews"),
                       Tab(text: "More Like This"),
                     ],
                   ),
@@ -241,6 +403,9 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                             _launchYouTubeSearch(widget.movie["title"]);
                           },
                         ),
+
+                        // Reviews
+                        _buildReviewsSection(),
 
                         // More Like This Section
                         FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
