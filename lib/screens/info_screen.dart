@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:moviemagicbox/assets/ads/banner_ad.dart';
-import 'package:moviemagicbox/assets/ads/interstitial_ad.dart';
-import 'package:moviemagicbox/assets/ads/native_ad.dart';
+// import 'package:moviemagicbox/assets/ads/banner_ad.dart';
+// import 'package:moviemagicbox/assets/ads/interstitial_ad.dart';
+// import 'package:moviemagicbox/assets/ads/native_ad.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../repositories/dashboard_repository.dart';
 import '../services/favorites_service.dart';
+import '../services/notification_service.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> movie; // Movie data passed dynamically
@@ -17,7 +18,7 @@ class MovieDetailsScreen extends StatefulWidget {
 
 class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late Future<Map<String, List<Map<String, dynamic>>>> dashboardData;
-  final InterstitialAdManager interstitialAdManager = InterstitialAdManager();
+  // final InterstitialAdManager AdManager = InterstitialAdManager();
   bool _isFavorite = false;
   late String _movieId;
 
@@ -25,7 +26,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   void initState() {
     super.initState();
     _movieId = widget.movie['imdbID'] ?? '${widget.movie["title"]}_${widget.movie["year"]}';
-    interstitialAdManager.loadInterstitialAd();
+    // interstitialAdManager.loadInterstitialAd();
     dashboardData = DashboardRepository.fetchDashboardData();
     _checkFavoriteStatus();
   }
@@ -46,6 +47,49 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
       await FavoritesService.addToFavorites(widget.movie);
     } else {
       await FavoritesService.removeFromFavorites(_movieId);
+    }
+  }
+
+  Future<void> _showReminderDialog() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (pickedDate != null) {
+      if (!context.mounted) return;
+      
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        final DateTime scheduledTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        await NotificationService.instance.scheduleMovieReminder(
+          movieTitle: widget.movie['title'],
+          scheduledTime: scheduledTime,
+          movieId: _movieId,
+          context: context,
+        );
+
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Reminder set successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     }
   }
 
@@ -82,6 +126,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               color: Colors.red,
             ),
             onPressed: _toggleFavorite,
+          ),
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.red),
+            onPressed: _showReminderDialog,
           ),
         ],
       ),

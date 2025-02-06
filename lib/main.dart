@@ -9,6 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'services/notification_service.dart';
 
 Future<void> preloadCache() async {
   final prefs = await SharedPreferences.getInstance();
@@ -41,6 +42,7 @@ void main() async {
   }
 
   await preloadCache();
+  await NotificationService.instance.init();
   runApp(const MyApp());
 }
 

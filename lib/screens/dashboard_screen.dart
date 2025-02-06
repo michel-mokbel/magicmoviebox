@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:moviemagicbox/assets/ads/banner_ad.dart';
-import 'package:moviemagicbox/assets/ads/interstitial_ad.dart';
-import 'package:moviemagicbox/assets/ads/native_ad.dart';
+// import 'package:moviemagicbox/assets/ads/banner_ad.dart';
+// import 'package:moviemagicbox/assets/ads/interstitial_ad.dart';
+// import 'package:moviemagicbox/assets/ads/native_ad.dart';
 import 'package:moviemagicbox/screens/info_screen.dart';
 import 'package:moviemagicbox/screens/library_screen.dart';
 import '../repositories/dashboard_repository.dart';
@@ -15,12 +15,12 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late Future<Map<String, List<Map<String, dynamic>>>> dashboardData;
-  final InterstitialAdManager interstitialAdManager = InterstitialAdManager();
+  // final InterstitialAdManager interstitialAdManager = InterstitialAdManager();
 
   @override
   void initState() {
     super.initState();
-    interstitialAdManager.loadInterstitialAd();
+    // interstitialAdManager.loadInterstitialAd();
     _loadLibraryItems();
   }
 
@@ -104,7 +104,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           ElevatedButton(
             onPressed: () {
-              interstitialAdManager.showInterstitialAd();
+              // interstitialAdManager.showInterstitialAd();
               Navigator.push(
                 context,
                 MaterialPageRoute(

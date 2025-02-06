@@ -6,6 +6,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:moviemagicbox/assets/ads/native_ad.dart';
 import 'package:moviemagicbox/main.dart';
 import 'package:share_plus/share_plus.dart';
+import 'reminders_screen.dart';
 
 
 class Settings extends StatefulWidget {
@@ -61,27 +62,41 @@ class _SettingsState extends State<Settings> {
     // Load the corresponding HTML file content
     String htmlData = await rootBundle.loadString(htmlFilePath);
 
+    if (!context.mounted) return;
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Privacy Policy'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: SingleChildScrollView(
-              child: Html(data: htmlData),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black,
+        child: Column(
+          children: [
+            AppBar(
+              backgroundColor: Colors.black,
+              title: const Text(
+                'Privacy Policy',
+                style: TextStyle(color: Colors.white),
+              ),
+              leading: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Close'),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Html(
+                  data: htmlData,
+                  style: {
+                    "body": Style(
+                      color: Colors.white,
+                      fontSize: FontSize(16.0),
+                    ),
+                  },
+                ),
+              ),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -169,6 +184,20 @@ class _SettingsState extends State<Settings> {
                   const SizedBox(height: 40),
                   Column(
                     children: [
+                      buildSettingsOption(
+                        context,
+                        icon: Icons.notifications,
+                        title: 'Movie Reminders',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RemindersScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const Divider(),
                       buildSettingsOption(
                         context,
                         icon: Icons.language,
