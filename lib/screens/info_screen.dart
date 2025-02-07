@@ -7,6 +7,7 @@ import '../repositories/dashboard_repository.dart';
 import '../services/favorites_service.dart';
 import '../services/notification_service.dart';
 import '../services/review_service.dart';
+import '../services/streaming_service.dart';
 import 'review_screen.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late Future<Map<String, List<Map<String, dynamic>>>> dashboardData;
   late Future<Review?> userReview;
   late Future<List<Review>> allReviews;
+  late Future<Map<String, dynamic>> streamingData;
   // final InterstitialAdManager AdManager = InterstitialAdManager();
   bool _isFavorite = false;
   late String _movieId;
@@ -34,6 +36,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     dashboardData = DashboardRepository.fetchDashboardData();
     _checkFavoriteStatus();
     _loadReviews();
+    streamingData = StreamingService.getStreamingAvailability(
+      widget.movie["title"],
+      type: widget.movie["type"] ?? 'movie'
+    );
   }
 
   void _loadReviews() {
@@ -384,24 +390,113 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     child: TabBarView(
                       children: [
                         // Trailers
+                        Column(
+                          children: [
+                            ListTile(
+                              leading: const Icon(
+                                Icons.play_circle_outline,
+                                color: Colors.white,
+                              ),
+                              title: Text(
+                                "${widget.movie["title"]} Trailer",
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              subtitle: const Text(
+                                "Watch Now",
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                              onTap: () {
+                                _launchYouTubeSearch(widget.movie["title"]);
+                              },
+                            ),
+                            const Divider(color: Colors.grey),
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: streamingData,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(color: Colors.red),
+                                  );
+                                }
 
-                        ListTile(
-                          leading: const Icon(
-                            Icons.play_circle_outline,
-                            color: Colors.white,
-                          ),
-                          title: Text(
-                            "${widget.movie["title"]} Trailer",
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          subtitle: const Text(
-                            "Watch Now",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          onTap: () {
-                            // interstitialAdManager.showInterstitialAd();
-                            _launchYouTubeSearch(widget.movie["title"]);
-                          },
+                                if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text(
+                                      'Error loading streaming data: ${snapshot.error}',
+                                      style: const TextStyle(color: Colors.grey),
+                                    ),
+                                  );
+                                }
+
+                                final streamingInfo = snapshot.data?['result']?[0]?['streamingInfo']?['ae'];
+                                if (streamingInfo == null || streamingInfo.isEmpty) {
+                                  return const Center(
+                                    child: Text(
+                                      'No streaming options available',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  );
+                                }
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: Text(
+                                        "Available on:",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      itemCount: streamingInfo.length,
+                                      itemBuilder: (context, index) {
+                                        final service = streamingInfo[index];
+                                        return ListTile(
+                                          leading: Icon(
+                                            service["service"] == "netflix" 
+                                                ? Icons.play_circle_filled 
+                                                : Icons.shopping_cart,
+                                            color: service["service"] == "netflix" 
+                                                ? Colors.red 
+                                                : Colors.blue,
+                                          ),
+                                          title: Text(
+                                            "${service["service"].toString().toUpperCase()} - ${service["streamingType"]}",
+                                            style: const TextStyle(color: Colors.white),
+                                          ),
+                                          subtitle: service["price"] != null 
+                                              ? Text(
+                                                  "${service["price"]["formatted"]}",
+                                                  style: const TextStyle(color: Colors.grey),
+                                                )
+                                              : null,
+                                          trailing: TextButton(
+                                            onPressed: () async {
+                                              final url = Uri.parse(service["link"]);
+                                              if (await canLaunchUrl(url)) {
+                                                await launchUrl(url, mode: LaunchMode.externalApplication);
+                                              }
+                                            },
+                                            child: Text(
+                                              service["streamingType"] == "subscription" ? "Watch Now" : "Buy/Rent",
+                                              style: const TextStyle(color: Colors.red),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
                         ),
 
                         // Reviews
