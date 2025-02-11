@@ -16,17 +16,26 @@ class Settings extends StatefulWidget {
   _SettingsState createState() => _SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
-  get http => null;
-
+class _SettingsState extends State<Settings> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+    _animationController.forward();
   }
 
   @override
   void dispose() {
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -53,13 +62,7 @@ class _SettingsState extends State<Settings> {
 
 
   void showPrivacyPolicy(BuildContext context) async {
-    // Get the current locale
-    String htmlFilePath;
-
-        htmlFilePath = 'lib/assets/html/privacy_policy_en.html';
-    
-
-    // Load the corresponding HTML file content
+    String htmlFilePath = 'lib/assets/html/privacy_policy_en.html';
     String htmlData = await rootBundle.loadString(htmlFilePath);
 
     if (!context.mounted) return;
@@ -67,28 +70,48 @@ class _SettingsState extends State<Settings> {
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Column(
           children: [
-            AppBar(
-              backgroundColor: Colors.black,
-              title: const Text(
-                'Privacy Policy',
-                style: TextStyle(color: Colors.white),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.red.withOpacity(0.8), const Color(0xFF8B0000)],
+                ),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
               ),
-              leading: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Privacy Policy',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
               ),
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Html(
                   data: htmlData,
                   style: {
                     "body": Style(
                       color: Colors.white,
-                      fontSize: FontSize(16.0),
+                      fontSize: FontSize(16),
                     ),
                   },
                 ),
@@ -104,88 +127,161 @@ class _SettingsState extends State<Settings> {
   void showLanguageSelectionDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Languages'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: const Text('English'),
-                onTap: () {
-                  MyApp.setLocale(context, const Locale('en', ''));
-                  Navigator.of(context).pop();
-                },
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.red.withOpacity(0.8), const Color(0xFF8B0000)],
+                ),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
               ),
+              child: const Row(
+                children: [
+                  Text(
+                    'Select Language',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  _buildLanguageOption(context, 'English', 'en'),
 
-              // ListTile(
-              //   title: const Text('Español'),
-              //   onTap: () {
-              //     MyApp.setLocale(context, const Locale('es', ''));
-              //     Navigator.of(context).pop();
-              //   },
-              // ),
-              // ListTile(
-              //   title: const Text('العربية'),
-              //   onTap: () {
-              //     MyApp.setLocale(context, const Locale('ar', ''));
-              //     Navigator.of(context).pop();
-              //   },
-              // ),
-              // ListTile(
-              //   title: const Text('Polski'),
-              //   onTap: () {
-              //     MyApp.setLocale(context, const Locale('pl', ''));
-              //     Navigator.of(context).pop();
-              //   },
-              // ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageOption(BuildContext context, String language, String code) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          MyApp.setLocale(context, Locale(code, ''));
+          Navigator.pop(context);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                language,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.grey),
             ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      bottom: false,
-      child: Scaffold(
-        backgroundColor:  Colors.black,
-        body: Container(
-          margin: const EdgeInsets.all(8.0),
-          child: SizedBox.expand(
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 100),
-                  // Profile Section
-                  const Center(
-                    child: Column(
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.red.withOpacity(0.8), const Color(0xFF8B0000)],
+                  ),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(30),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.red.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Settings',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
                       children: [
-                        // _bannerAdManager.getBannerAdWidget(),
-                        SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundImage: AssetImage(
-                                  'lib/assets/images/profile-pic.png'),
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.white.withOpacity(0.2),
+                                Colors.white.withOpacity(0.1),
+                              ],
                             ),
-                          ],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: const CircleAvatar(
+                            radius: 40,
+                            backgroundImage: AssetImage('lib/assets/images/profile-pic.png'),
+                          ),
                         ),
-                        SizedBox(height: 10),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 40),
-                  Column(
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      buildSettingsOption(
-                        context,
+                      _buildSettingsTile(
                         icon: Icons.notifications,
                         title: 'Movie Reminders',
                         onTap: () {
@@ -197,38 +293,90 @@ class _SettingsState extends State<Settings> {
                           );
                         },
                       ),
-                      const Divider(),
-                      buildSettingsOption(
-                        context,
+                      _buildSettingsTile(
                         icon: Icons.language,
                         title: 'Language',
-                        onTap: () {
-                          showLanguageSelectionDialog(context);
-                        },
+                        onTap: () => showLanguageSelectionDialog(context),
                       ),
-                      const Divider(),
-                      buildSettingsOption(
-                        context,
+                      _buildSettingsTile(
                         icon: Icons.share,
                         title: 'Share App',
-                        onTap: () {
-                          shareApp(context);
-                        },
+                        onTap: () => shareApp(context),
                       ),
-                      const Divider(),
-                      buildSettingsOption(
-                        context,
+                      _buildSettingsTile(
                         icon: Icons.privacy_tip,
                         title: 'Privacy Policy',
-                        onTap: () {
-                          showPrivacyPolicy(context);
-                        },
+                        onTap: () => showPrivacyPolicy(context),
                       ),
-                      // const NativeAdWidget(),
                     ],
                   ),
-                ],
+                ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    bool isDestructive = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDestructive
+              ? [Colors.red.withOpacity(0.8), const Color(0xFF8B0000)]
+              : [Colors.grey[900]!, Colors.grey[800]!],
+        ),
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: (isDestructive ? Colors.red : Colors.black).withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(15),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                const Icon(
+                  Icons.chevron_right,
+                  color: Colors.white,
+                ),
+              ],
             ),
           ),
         ),

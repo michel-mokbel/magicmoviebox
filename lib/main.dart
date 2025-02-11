@@ -10,7 +10,49 @@ import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'services/notification_service.dart';
-import 'package:geolocator/geolocator.dart';
+import 'services/location_service.dart';
+import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+class WebViewScreen extends StatelessWidget {
+  final String url;
+
+  const WebViewScreen({super.key, required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse(url));
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          WebViewWidget(controller: controller),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => const MyApp()),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 Future<void> preloadCache() async {
   final prefs = await SharedPreferences.getInstance();
@@ -21,9 +63,8 @@ Future<void> preloadCache() async {
   }
 }
 
-void main() async {
+Future<void> main() async {
   try {
-    // Ensure Flutter bindings are initialized first
     WidgetsFlutterBinding.ensureInitialized();
 
     // Initialize Firebase with error handling
@@ -31,7 +72,6 @@ void main() async {
       await Firebase.initializeApp();
     } catch (e) {
       print('Failed to initialize Firebase: $e');
-      // Continue without Firebase
     }
 
     // Initialize notifications with error handling
@@ -39,33 +79,85 @@ void main() async {
       await NotificationService.instance.init();
     } catch (e) {
       print('Failed to initialize notifications: $e');
-      // Continue without notifications
+    }
+
+    // Initialize remote config
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: const Duration(minutes: 1),
+      minimumFetchInterval: const Duration(seconds: 30),
+    ));
+    await remoteConfig.fetchAndActivate();
+
+    // Get country from location service
+    try {
+      final country = await LocationService.initializeLocation();
+      if (country != null) {
+        print('Country detected: $country');
+        
+        // Get and parse the country configuration from remote config
+        final countryConfigStr = remoteConfig.getString('moviemagicbox_countries');
+        print('Remote config country string: $countryConfigStr');
+        
+        if (countryConfigStr.isNotEmpty) {
+          try {
+            final List<dynamic> countryConfigList = json.decode(countryConfigStr);
+            if (countryConfigList.isNotEmpty) {
+              final countryConfig = countryConfigList[0];
+              final upperCountry = country.toUpperCase();
+              print('Checking country: $upperCountry against config: $countryConfig');
+              
+              if (countryConfig is Map && countryConfig.containsKey(upperCountry)) {
+                final url = countryConfig[upperCountry];
+                print('URL found for country $upperCountry: $url');
+                
+                if (url != null && url.toString().isNotEmpty) {
+                  print('Loading WebView with URL: $url');
+                  runApp(MaterialApp(
+                    home: WebViewScreen(url: url.toString()),
+                    debugShowCheckedModeBanner: false,
+                  ));
+                  return;
+                }
+              } else {
+                print('Country $upperCountry not found in config or invalid config format');
+              }
+            }
+          } catch (e) {
+            print('Error parsing country config: $e');
+          }
+        } else {
+          print('Empty country config string from remote config');
+        }
+      } else {
+        print('Could not determine country');
+      }
+    } catch (e) {
+      print('Failed to initialize location: $e');
     }
 
     // Request tracking authorization with error handling
     try {
-      final status = await AppTrackingTransparency.requestTrackingAuthorization();
-      if (status == TrackingStatus.authorized) {
+      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+      if (status == TrackingStatus.notDetermined) {
+        await Future.delayed(const Duration(seconds: 1));
+        final newStatus = await AppTrackingTransparency.requestTrackingAuthorization();
+        if (newStatus == TrackingStatus.authorized) {
+          final devKey = await fetchDevKeyFromRemoteConfig().catchError((e) {
+            print('Error fetching dev key: $e');
+            return 'TVuiYiPd4Bu5wzUuZwTymX';
+          });
+          initAppsFlyer(devKey, true);
+        }
+      } else if (status == TrackingStatus.authorized) {
         final devKey = await fetchDevKeyFromRemoteConfig().catchError((e) {
           print('Error fetching dev key: $e');
-          return 'TVuiYiPd4Bu5wzUuZwTymX'; // Fallback to default key
+          return 'TVuiYiPd4Bu5wzUuZwTymX';
         });
         initAppsFlyer(devKey, true);
       }
     } catch (e) {
       print('Failed to initialize tracking: $e');
-      // Continue without tracking
-    }
-
-    // Check and request location permissions
-    try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-    } catch (e) {
-      print('Failed to initialize location services: $e');
-      // Continue without location services
     }
 
     // Preload cache with error handling
@@ -73,14 +165,12 @@ void main() async {
       await preloadCache();
     } catch (e) {
       print('Failed to preload cache: $e');
-      // Continue without preloaded cache
     }
 
     // Run app
     runApp(const MyApp());
   } catch (e) {
     print('Fatal error during initialization: $e');
-    // Run app with minimal initialization
     runApp(const MyApp());
   }
 }

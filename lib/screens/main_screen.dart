@@ -14,9 +14,10 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
   int currentIndex = 0;
   bool _isChatOpen = false;
+  late AnimationController _animationController;
   final List<Widget> screens = [
     const DashboardScreen(),
     const SearchScreen(),
@@ -30,9 +31,29 @@ class _MainScreenState extends State<MainScreen> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   void _toggleChat() {
     setState(() {
       _isChatOpen = !_isChatOpen;
+      if (_isChatOpen) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
     });
   }
 
@@ -79,115 +100,201 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildChatOverlay() {
-    return Positioned(
-      bottom: 70,
-      right: 10,
-      left: 10,
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOut,
+      )),
       child: Container(
-        height: 600,
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: Colors.grey.shade800),
+        margin: EdgeInsets.only(
+          top: MediaQuery.of(context).padding.top + 10,
+          bottom: 70,
+          left: 10,
+          right: 10
         ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Chat with Movie Assistant',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: _toggleChat,
-                ),
-              ],
-            ),
-            const Divider(color: Colors.red),
-            if (_messages.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  'Hello! I can help you find movies, provide information about movies, actors, directors, and give personalized recommendations. How can I assist you today?',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8.0),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  return Align(
-                    alignment: message['sender'] == 'user'
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 5,
-                        horizontal: 10,
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: message['sender'] == 'user'
-                            ? Colors.red
-                            : Colors.grey[800],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: message['sender'] == 'bot'
-                          ? Html(
-                              data: message['text'] ?? '',
-                              style: {"body": Style(color: Colors.white)},
-                            )
-                          : Text(
-                              message['text'] ?? '',
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            if (_isLoading)
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: CircularProgressIndicator(color: Colors.red),
-              ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        hintText: 'Ask about movies...',
-                        hintStyle: TextStyle(color: Colors.grey),
-                        border: OutlineInputBorder(),
-                        fillColor: Color.fromARGB(255, 30, 30, 30),
-                        filled: true,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.send, color: Colors.red),
-                    onPressed: () => _sendMessage(_messageController.text),
-                  ),
-                ],
-              ),
+        height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - 90,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF1E1E1E), Color(0xFF2D2D2D)],
+          ),
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             ),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(25),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.red, Color(0xFF8B0000)],
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Movie Assistant',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: _toggleChat,
+                    ),
+                  ],
+                ),
+              ),
+              if (_messages.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850],
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Text(
+                      'Hello! I can help you find movies, provide information about movies, actors, directors, and give personalized recommendations. How can I assist you today?',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: _messages.length,
+                  itemBuilder: (context, index) {
+                    final message = _messages[index];
+                    return Align(
+                      alignment: message['sender'] == 'user'
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 5,
+                          horizontal: 10,
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: message['sender'] == 'user'
+                                ? [Colors.red, const Color(0xFF8B0000)]
+                                : [const Color(0xFF2D2D2D), const Color(0xFF1E1E1E)],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: message['sender'] == 'bot'
+                            ? Html(
+                                data: message['text'] ?? '',
+                                style: {"body": Style(color: Colors.white)},
+                              )
+                            : Text(
+                                message['text'] ?? '',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              if (_isLoading)
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850],
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.red,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Thinking...',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E1E1E),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[850],
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: TextField(
+                          controller: _messageController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Ask about movies...',
+                            hintStyle: TextStyle(color: Colors.grey[400]),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.red, Color(0xFF8B0000)],
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.send, color: Colors.white),
+                        onPressed: () => _sendMessage(_messageController.text),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -202,38 +309,98 @@ class _MainScreenState extends State<MainScreen> {
           screens[currentIndex],
           if (_isChatOpen) _buildChatOverlay(),
           Positioned(
-            bottom: 10,
-            right: 10,
-            child: FloatingActionButton(
-              onPressed: _toggleChat,
-              backgroundColor: Colors.red,
-              child: Icon(
-                _isChatOpen ? Icons.close : Icons.chat,
-                color: Colors.white
+            bottom: 16,
+            right: 16,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Colors.red, Color(0xFF8B0000)],
+                ),
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.3),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _toggleChat,
+                  borderRadius: BorderRadius.circular(30),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(
+                      _isChatOpen ? Icons.close : Icons.chat,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-        backgroundColor: const Color.fromARGB(255, 25, 19, 19),
-        selectedItemColor: Colors.red,
-        unselectedItemColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Dashboard"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
-          BottomNavigationBarItem(icon: Icon(Icons.theater_comedy), label: "Cinemas"),
-          BottomNavigationBarItem(icon: Icon(Icons.watch_later), label: "Watch Later"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF1E1E1E), Color(0xFF2D2D2D)],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: BottomNavigationBar(
+            currentIndex: currentIndex,
+            onTap: (index) {
+              setState(() {
+                currentIndex = index;
+              });
+            },
+            backgroundColor: Colors.transparent,
+            selectedItemColor: Colors.red,
+            unselectedItemColor: Colors.grey,
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
+            items: [
+              _buildNavItem(Icons.home, "Dashboard", 0),
+              _buildNavItem(Icons.search, "Search", 1),
+              _buildNavItem(Icons.theater_comedy, "Cinemas", 2),
+              _buildNavItem(Icons.watch_later, "Watch Later", 3),
+              _buildNavItem(Icons.settings, "Settings", 4),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  BottomNavigationBarItem _buildNavItem(IconData icon, String label, int index) {
+    return BottomNavigationBarItem(
+      icon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          gradient: currentIndex == index
+              ? const LinearGradient(
+                  colors: [Colors.red, Color(0xFF8B0000)],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Icon(icon),
+      ),
+      label: label,
     );
   }
 }
