@@ -413,7 +413,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
         body: Column(
           children: [
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.black,
               ),
               child: TabBar(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moviemagicbox/assets/ads/banner_ad.dart';
 import 'package:moviemagicbox/screens/info_screen.dart';
 import '../services/movie_service.dart';
 

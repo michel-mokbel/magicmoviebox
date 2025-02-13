@@ -43,7 +43,7 @@ class NotificationService {
 
   Future<bool> requestPermissions() async {
     // Request permissions for iOS
-    final iOS = await _localNotifications.resolvePlatformSpecificImplementation<
+    final iOS =  _localNotifications.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>();
     if (iOS != null) {
       await iOS.requestPermissions(
@@ -59,7 +59,7 @@ class NotificationService {
 
   Future<bool> checkPermissions() async {
     // For iOS, check if notifications are enabled
-    final iOS = await _localNotifications.resolvePlatformSpecificImplementation<
+    final iOS =  _localNotifications.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>();
     if (iOS != null) {
       // Request permissions to check if they're granted
@@ -72,7 +72,7 @@ class NotificationService {
     }
 
     // For Android, check if the notification channel is enabled
-    final android = await _localNotifications.resolvePlatformSpecificImplementation<
+    final android = _localNotifications.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     if (android != null) {
       final areNotificationsEnabled = await android.areNotificationsEnabled();
@@ -129,7 +129,7 @@ class NotificationService {
       }
     }
 
-    final androidDetails = AndroidNotificationDetails(
+    const androidDetails = AndroidNotificationDetails(
       'movie_reminders',
       'Movie Reminders',
       channelDescription: 'Reminders for movies you want to watch',
@@ -137,13 +137,13 @@ class NotificationService {
       priority: Priority.high,
     );
 
-    final iosDetails = const DarwinNotificationDetails(
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
     );
 
-    final details = NotificationDetails(
+    const details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );

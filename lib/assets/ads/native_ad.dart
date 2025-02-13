@@ -3,7 +3,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:moviemagicbox/assets/ads/ad_state.dart';
 
 class NativeAdWidget extends StatefulWidget {
-  const NativeAdWidget({Key? key}) : super(key: key);
+  const NativeAdWidget({super.key});
 
   @override
   State<NativeAdWidget> createState() => _NativeAdWidgetState();

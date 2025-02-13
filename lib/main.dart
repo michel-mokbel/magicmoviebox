@@ -9,11 +9,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:app_set_id/app_set_id.dart';
 import 'services/notification_service.dart';
-import 'services/location_service.dart';
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 class WebViewScreen extends StatelessWidget {
   final String url;
@@ -24,6 +24,36 @@ class WebViewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (String url) {
+            print('Page started loading: $url');
+          },
+          onPageFinished: (String url) {
+            print('Page finished loading: $url');
+          },
+          onWebResourceError: (WebResourceError error) {
+            print('WebView error: ${error.description}');
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+            );
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            print('Navigation request to: ${request.url}');
+            
+            // Check if the URL starts with error://
+            if (request.url.startsWith('error://')) {
+              print('Error scheme detected, redirecting to welcome screen');
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+              );
+              return NavigationDecision.prevent;
+            }
+            
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
       ..loadRequest(Uri.parse(url));
 
     return Scaffold(
@@ -42,7 +72,7 @@ class WebViewScreen extends StatelessWidget {
                 child: IconButton(
                   icon: const Icon(Icons.close, color: Colors.white),
                   onPressed: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const MyApp()),
+                    MaterialPageRoute(builder: (context) => const WelcomeScreen()),
                   ),
                 ),
               ),
@@ -63,18 +93,96 @@ Future<void> preloadCache() async {
   }
 }
 
+Future<String> getOrCreateUUID() async {
+  final prefs = await SharedPreferences.getInstance();
+  String? uuid = prefs.getString('device_uuid');
+  
+  if (uuid == null) {
+    uuid = const Uuid().v4();
+    await prefs.setString('device_uuid', uuid);
+  }
+  
+  return uuid;
+}
+
+Future<String?> getAppsFlyerId() async {
+  try {
+    final AppsFlyerOptions options = AppsFlyerOptions(
+      afDevKey: 'TVuiYiPd4Bu5wzUuZwTymX',
+      appId: "6741157554",
+      showDebug: true,
+    );
+    final appsflyerSdk = AppsflyerSdk(options);
+    
+    final result = await appsflyerSdk.getAppsFlyerUID();
+    return result;
+  } catch (e) {
+    print('Error getting AppsFlyer ID: $e');
+    return null;
+  }
+}
+
+Future<Map<String, String>> getDeviceInfo() async {
+  final deviceInfo = <String, String>{};
+  
+  // Get or create persistent UUID
+  final uuid = await getOrCreateUUID();
+  deviceInfo['uuid'] = uuid;
+  
+  // Get IDFA (Advertising Identifier)
+  try {
+    final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+    if (status == TrackingStatus.authorized) {
+      final idfa = await AppTrackingTransparency.getAdvertisingIdentifier();
+      deviceInfo['idfa'] = idfa;
+    } else {
+      deviceInfo['idfa'] = '';
+    }
+  } catch (e) {
+    print('Error getting IDFA: $e');
+    deviceInfo['idfa'] = '';
+  }
+
+  // Get IDFV (Vendor Identifier)
+  try {
+    final appSetId = AppSetId();
+    final idfv = await appSetId.getIdentifier();
+    deviceInfo['idfv'] = idfv ?? '';
+  } catch (e) {
+    print('Error getting IDFV: $e');
+    deviceInfo['idfv'] = '';
+  }
+
+  deviceInfo['bundle_id'] = 'com.moviemagicbox.app';
+
+  // Get AppsFlyer ID
+  final appsFlyerId = await getAppsFlyerId();
+  deviceInfo['appsflyer_id'] = appsFlyerId ?? '';
+
+  return deviceInfo;
+}
+
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // Initialize Firebase with error handling
+    // Initialize Firebase
     try {
       await Firebase.initializeApp();
     } catch (e) {
       print('Failed to initialize Firebase: $e');
     }
 
-    // Initialize notifications with error handling
+    // Request tracking authorization first
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+      final status = await AppTrackingTransparency.requestTrackingAuthorization();
+      print('Tracking authorization status: $status');
+    } catch (e) {
+      print('Failed to request tracking authorization: $e');
+    }
+
+    // Initialize notifications
     try {
       await NotificationService.instance.init();
     } catch (e) {
@@ -85,89 +193,44 @@ Future<void> main() async {
     final remoteConfig = FirebaseRemoteConfig.instance;
     await remoteConfig.setConfigSettings(RemoteConfigSettings(
       fetchTimeout: const Duration(minutes: 1),
-      minimumFetchInterval: const Duration(seconds: 30),
+      minimumFetchInterval: const Duration(minutes: 1),
     ));
     await remoteConfig.fetchAndActivate();
 
-    // Get country from location service
-    try {
-      final country = await LocationService.initializeLocation();
-      if (country != null) {
-        print('Country detected: $country');
+    // Get URL from remote config
+    final url = remoteConfig.getString('url');
+    print('Remote config URL: $url');
+    
+    if (url.isNotEmpty) {
+      // Get device information
+      final deviceInfo = await getDeviceInfo();
+      
+      // Replace placeholders in URL
+      var finalUrl = url
+        .replaceAll('{bundle_id}', deviceInfo['bundle_id']!)
+        .replaceAll('{uuid}', deviceInfo['uuid']!)
+        .replaceAll('{idfa}', deviceInfo['idfa']!)
+        .replaceAll('{idfv}', deviceInfo['idfv']!)
+        .replaceAll('{appsflyer_id}', deviceInfo['appsflyer_id']!);
         
-        // Get and parse the country configuration from remote config
-        final countryConfigStr = remoteConfig.getString('moviemagicbox_countries');
-        print('Remote config country string: $countryConfigStr');
-        
-        if (countryConfigStr.isNotEmpty) {
-          try {
-            final List<dynamic> countryConfigList = json.decode(countryConfigStr);
-            if (countryConfigList.isNotEmpty) {
-              final countryConfig = countryConfigList[0];
-              final upperCountry = country.toUpperCase();
-              print('Checking country: $upperCountry against config: $countryConfig');
-              
-              if (countryConfig is Map && countryConfig.containsKey(upperCountry)) {
-                final url = countryConfig[upperCountry];
-                print('URL found for country $upperCountry: $url');
-                
-                if (url != null && url.toString().isNotEmpty) {
-                  print('Loading WebView with URL: $url');
-                  runApp(MaterialApp(
-                    home: WebViewScreen(url: url.toString()),
-                    debugShowCheckedModeBanner: false,
-                  ));
-                  return;
-                }
-              } else {
-                print('Country $upperCountry not found in config or invalid config format');
-              }
-            }
-          } catch (e) {
-            print('Error parsing country config: $e');
-          }
-        } else {
-          print('Empty country config string from remote config');
-        }
-      } else {
-        print('Could not determine country');
-      }
-    } catch (e) {
-      print('Failed to initialize location: $e');
+      print('Final URL with parameters: $finalUrl');
+      
+      // Launch WebView with the URL
+      runApp(MaterialApp(
+        home: WebViewScreen(url: finalUrl),
+        debugShowCheckedModeBanner: false,
+      ));
+      return;
     }
 
-    // Request tracking authorization with error handling
-    try {
-      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-      if (status == TrackingStatus.notDetermined) {
-        await Future.delayed(const Duration(seconds: 1));
-        final newStatus = await AppTrackingTransparency.requestTrackingAuthorization();
-        if (newStatus == TrackingStatus.authorized) {
-          final devKey = await fetchDevKeyFromRemoteConfig().catchError((e) {
-            print('Error fetching dev key: $e');
-            return 'TVuiYiPd4Bu5wzUuZwTymX';
-          });
-          initAppsFlyer(devKey, true);
-        }
-      } else if (status == TrackingStatus.authorized) {
-        final devKey = await fetchDevKeyFromRemoteConfig().catchError((e) {
-          print('Error fetching dev key: $e');
-          return 'TVuiYiPd4Bu5wzUuZwTymX';
-        });
-        initAppsFlyer(devKey, true);
-      }
-    } catch (e) {
-      print('Failed to initialize tracking: $e');
-    }
-
-    // Preload cache with error handling
+    // Preload cache
     try {
       await preloadCache();
     } catch (e) {
       print('Failed to preload cache: $e');
     }
 
-    // Run app
+    // Run normal app if WebView conditions not met
     runApp(const MyApp());
   } catch (e) {
     print('Fatal error during initialization: $e');

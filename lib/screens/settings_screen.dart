@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:moviemagicbox/assets/ads/native_ad.dart';
 import 'package:moviemagicbox/main.dart';
 import 'package:share_plus/share_plus.dart';
 import 'reminders_screen.dart';
