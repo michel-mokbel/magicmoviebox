@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:moviemagicbox/screens/main_screen.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 
 
 class WelcomeScreen extends StatefulWidget {
@@ -29,6 +31,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void initState() {
     super.initState();
     _startAutoSlide();
+    _requestAttIfNeeded();
+  }
+  
+  Future<void> _requestAttIfNeeded() async {
+    try {
+      // Check remote config to see if we need to show ATT
+      final remoteConfig = FirebaseRemoteConfig.instance;
+      final showAtt = remoteConfig.getBool('show_att');
+      
+      if (showAtt) {
+        // Wait for UI to render before showing dialog
+        await Future.delayed(const Duration(seconds: 1));
+        final status = await AppTrackingTransparency.requestTrackingAuthorization();
+        print('Tracking authorization status from welcome screen: $status');
+      }
+    } catch (e) {
+      print('Failed to request tracking authorization from welcome screen: $e');
+    }
   }
 
   void _startAutoSlide() {

@@ -118,6 +118,7 @@ Future<Map<String, String>> getDeviceInfo() async {
       final idfa = await AppTrackingTransparency.getAdvertisingIdentifier();
       deviceInfo['idfa'] = idfa;
     } else {
+      print('Tracking not authorized, status: $status');
       deviceInfo['idfa'] = '';
     }
   } catch (e) {
@@ -140,7 +141,8 @@ Future<Map<String, String>> getDeviceInfo() async {
   // Get AppsFlyer ID
   final appsFlyerId = await getAppsFlyerId();
   deviceInfo['appsflyer_id'] = appsFlyerId ?? '';
-
+  
+  print('Device info collected: $deviceInfo');
   return deviceInfo;
 }
 
@@ -151,18 +153,9 @@ Future<void> main() async {
     // Initialize Firebase
     try {
       await Firebase.initializeApp();
+      print('Firebase initialized successfully');
     } catch (e) {
       print('Failed to initialize Firebase: $e');
-    }
-
-    // Request tracking authorization first
-    try {
-      await Future.delayed(const Duration(seconds: 1));
-      final status =
-          await AppTrackingTransparency.requestTrackingAuthorization();
-      print('Tracking authorization status: $status');
-    } catch (e) {
-      print('Failed to request tracking authorization: $e');
     }
 
     // Initialize notifications
@@ -180,24 +173,41 @@ Future<void> main() async {
     ));
     await remoteConfig.fetchAndActivate();
 
-    // Get URL from remote config
-    final url = remoteConfig.getString('url');
-    print('Remote config URL: $url');
-
-    if (url.isNotEmpty) {
+    // Get URL and show_att from remote config
+    final url = remoteConfig.getValue('url');
+    final showAtt = remoteConfig.getBool('show_att');
+    
+    print('Remote config URL: ${url.asString()}');
+    print('Remote config show_att: $showAtt');
+    print('Remote config source: ${url.source}');
+    print('Remote config last fetch status: ${remoteConfig.lastFetchStatus}');
+    print('Remote config last fetch time: ${remoteConfig.lastFetchTime}');
+    
+    if (url.asString().isNotEmpty) {
+      // If URL is present, request ATT in splash screen
+      try {
+        if (showAtt) {
+          await Future.delayed(const Duration(seconds: 1));
+          final status = await AppTrackingTransparency.requestTrackingAuthorization();
+          print('Tracking authorization status: $status');
+        }
+      } catch (e) {
+        print('Failed to request tracking authorization: $e');
+      }
+      
       // Get device information
       final deviceInfo = await getDeviceInfo();
-
+      
       // Replace placeholders in URL
-      var finalUrl = url
-          .replaceAll('{bundle_id}', deviceInfo['bundle_id']!)
-          .replaceAll('{uuid}', deviceInfo['uuid']!)
-          .replaceAll('{idfa}', deviceInfo['idfa']!)
-          .replaceAll('{idfv}', deviceInfo['idfv']!)
-          .replaceAll('{appsflyer_id}', deviceInfo['appsflyer_id']!);
-
+      var finalUrl = url.asString()
+        .replaceAll('{bundle_id}', deviceInfo['bundle_id']!)
+        .replaceAll('{uuid}', deviceInfo['uuid']!)
+        .replaceAll('{idfa}', deviceInfo['idfa']!)
+        .replaceAll('{idfv}', deviceInfo['idfv']!)
+        .replaceAll('{appsflyer_id}', deviceInfo['appsflyer_id']!);
+        
       print('Final URL with parameters: $finalUrl');
-
+      
       // Launch WebView with the URL
       runApp(MaterialApp(
         home: WebViewScreen(url: finalUrl),
