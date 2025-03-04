@@ -40,7 +40,7 @@ class WebViewScreen extends StatelessWidget {
           },
           onNavigationRequest: (NavigationRequest request) {
             print('Navigation request to: ${request.url}');
-            
+
             // Check if the URL starts with error://
             if (request.url.startsWith('error://')) {
               print('Error scheme detected, redirecting to welcome screen');
@@ -49,7 +49,7 @@ class WebViewScreen extends StatelessWidget {
               );
               return NavigationDecision.prevent;
             }
-            
+
             return NavigationDecision.navigate;
           },
         ),
@@ -59,25 +59,7 @@ class WebViewScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          WebViewWidget(controller: controller),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.topRight,
-              child: Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          SafeArea(child: WebViewWidget(controller: controller)),
         ],
       ),
     );
@@ -96,12 +78,12 @@ Future<void> preloadCache() async {
 Future<String> getOrCreateUUID() async {
   final prefs = await SharedPreferences.getInstance();
   String? uuid = prefs.getString('device_uuid');
-  
+
   if (uuid == null) {
     uuid = const Uuid().v4();
     await prefs.setString('device_uuid', uuid);
   }
-  
+
   return uuid;
 }
 
@@ -113,7 +95,7 @@ Future<String?> getAppsFlyerId() async {
       showDebug: true,
     );
     final appsflyerSdk = AppsflyerSdk(options);
-    
+
     final result = await appsflyerSdk.getAppsFlyerUID();
     return result;
   } catch (e) {
@@ -124,11 +106,11 @@ Future<String?> getAppsFlyerId() async {
 
 Future<Map<String, String>> getDeviceInfo() async {
   final deviceInfo = <String, String>{};
-  
+
   // Get or create persistent UUID
   final uuid = await getOrCreateUUID();
   deviceInfo['uuid'] = uuid;
-  
+
   // Get IDFA (Advertising Identifier)
   try {
     final status = await AppTrackingTransparency.trackingAuthorizationStatus;
@@ -153,7 +135,7 @@ Future<Map<String, String>> getDeviceInfo() async {
     deviceInfo['idfv'] = '';
   }
 
-  deviceInfo['bundle_id'] = 'com.moviemagicbox.app';
+  deviceInfo['bundle_id'] = 'com.appadsrocket.moviemagicbox';
 
   // Get AppsFlyer ID
   final appsFlyerId = await getAppsFlyerId();
@@ -176,7 +158,8 @@ Future<void> main() async {
     // Request tracking authorization first
     try {
       await Future.delayed(const Duration(seconds: 1));
-      final status = await AppTrackingTransparency.requestTrackingAuthorization();
+      final status =
+          await AppTrackingTransparency.requestTrackingAuthorization();
       print('Tracking authorization status: $status');
     } catch (e) {
       print('Failed to request tracking authorization: $e');
@@ -200,21 +183,21 @@ Future<void> main() async {
     // Get URL from remote config
     final url = remoteConfig.getString('url');
     print('Remote config URL: $url');
-    
+
     if (url.isNotEmpty) {
       // Get device information
       final deviceInfo = await getDeviceInfo();
-      
+
       // Replace placeholders in URL
       var finalUrl = url
-        .replaceAll('{bundle_id}', deviceInfo['bundle_id']!)
-        .replaceAll('{uuid}', deviceInfo['uuid']!)
-        .replaceAll('{idfa}', deviceInfo['idfa']!)
-        .replaceAll('{idfv}', deviceInfo['idfv']!)
-        .replaceAll('{appsflyer_id}', deviceInfo['appsflyer_id']!);
-        
+          .replaceAll('{bundle_id}', deviceInfo['bundle_id']!)
+          .replaceAll('{uuid}', deviceInfo['uuid']!)
+          .replaceAll('{idfa}', deviceInfo['idfa']!)
+          .replaceAll('{idfv}', deviceInfo['idfv']!)
+          .replaceAll('{appsflyer_id}', deviceInfo['appsflyer_id']!);
+
       print('Final URL with parameters: $finalUrl');
-      
+
       // Launch WebView with the URL
       runApp(MaterialApp(
         home: WebViewScreen(url: finalUrl),
@@ -242,7 +225,8 @@ Future<String> fetchDevKeyFromRemoteConfig() async {
   final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
   try {
     await remoteConfig.setDefaults(<String, dynamic>{
-      'dev_key': 'TVuiYiPd4Bu5wzUuZwTymX', // Default value if Remote Config fails
+      'dev_key':
+          'TVuiYiPd4Bu5wzUuZwTymX', // Default value if Remote Config fails
     });
     await remoteConfig.fetchAndActivate();
     String devKey = remoteConfig.getString('dev_key');
@@ -275,8 +259,8 @@ void initAppsFlyer(String devKey, bool isTrackingAllowed) {
         registerOnDeepLinkingCallback: true);
     appsflyerSdk.startSDK(
       onSuccess: () => print("AppsFlyer SDK initialized successfully."),
-      onError: (int errorCode, String errorMessage) =>
-          print("Error initializing AppsFlyer SDK: Code $errorCode - $errorMessage"),
+      onError: (int errorCode, String errorMessage) => print(
+          "Error initializing AppsFlyer SDK: Code $errorCode - $errorMessage"),
     );
   } else {
     print("Tracking denied, skipping AppsFlyer initialization.");

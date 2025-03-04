@@ -62,6 +62,8 @@ dependencies:
   cached_network_image: ^3.3.1
   uuid: ^4.3.3
   webview_flutter: ^4.7.0
+  app_set_id: ^1.2.1
+  flutter_native_splash: ^2.4.4
 
 dev_dependencies:
   flutter_test:
@@ -102,6 +104,7 @@ flutter:
     - lib/assets/json/shows_imdb_ids.json
     - lib/assets/images/profile-pic.png
     - lib/assets/html/privacy_policy_en.html
+    - lib/assets/images/Splash.png
 
 
 
@@ -130,3 +133,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_native_splash:
+
+  background_image: lib/assets/images/Splash.png
+  ios: true
+  android: true
+  web: false 
