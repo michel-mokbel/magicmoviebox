@@ -19,7 +19,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
   }
 
   void _loadReminders() {
-    _remindersFuture = NotificationService.instance.getScheduledReminders();
+
   }
 
   Future<void> _deleteReminder(String movieId, String title) async {
@@ -49,7 +49,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
     );
 
     if (confirmed == true) {
-      await NotificationService.instance.cancelMovieReminder(movieId);
+
       setState(() {
         _loadReminders();
       });

@@ -10,7 +10,6 @@ import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:app_set_id/app_set_id.dart';
-import 'services/notification_service.dart';
 import 'dart:convert';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -89,13 +88,12 @@ Future<String> getOrCreateUUID() async {
 
 Future<String?> getAppsFlyerId() async {
   try {
-    final AppsFlyerOptions options = AppsFlyerOptions(
-      afDevKey: 'TVuiYiPd4Bu5wzUuZwTymX',
-      appId: "6741157554",
-      showDebug: true,
-    );
-    final appsflyerSdk = AppsflyerSdk(options);
-
+    final devKey = await fetchDevKeyFromRemoteConfig().catchError((e) {
+      print('Error fetching dev key: $e');
+      return 'TVuiYiPd4Bu5wzUuZwTymX';
+    });
+    
+    final appsflyerSdk = initAppsFlyerInstance(devKey);
     final result = await appsflyerSdk.getAppsFlyerUID();
     return result;
   } catch (e) {
@@ -141,7 +139,7 @@ Future<Map<String, String>> getDeviceInfo() async {
   // Get AppsFlyer ID
   final appsFlyerId = await getAppsFlyerId();
   deviceInfo['appsflyer_id'] = appsFlyerId ?? '';
-  
+
   print('Device info collected: $deviceInfo');
   return deviceInfo;
 }
@@ -158,13 +156,6 @@ Future<void> main() async {
       print('Failed to initialize Firebase: $e');
     }
 
-    // Initialize notifications
-    try {
-      await NotificationService.instance.init();
-    } catch (e) {
-      print('Failed to initialize notifications: $e');
-    }
-
     // Initialize remote config
     final remoteConfig = FirebaseRemoteConfig.instance;
     await remoteConfig.setConfigSettings(RemoteConfigSettings(
@@ -176,44 +167,79 @@ Future<void> main() async {
     // Get URL and show_att from remote config
     final url = remoteConfig.getValue('url');
     final showAtt = remoteConfig.getBool('show_att');
-    
+
     print('Remote config URL: ${url.asString()}');
     print('Remote config show_att: $showAtt');
     print('Remote config source: ${url.source}');
     print('Remote config last fetch status: ${remoteConfig.lastFetchStatus}');
     print('Remote config last fetch time: ${remoteConfig.lastFetchTime}');
+
+    // Initialize AppsFlyer early, but don't start tracking yet
+    final devKey = await fetchDevKeyFromRemoteConfig().catchError((e) {
+      print('Error fetching dev key: $e');
+      return 'TVuiYiPd4Bu5wzUuZwTymX';
+    });
     
+    // Create AppsFlyer instance early - will be started after ATT check
+    final appsflyerSdk = initAppsFlyerInstance(devKey);
+
     if (url.asString().isNotEmpty) {
       // If URL is present, request ATT in splash screen
       try {
         if (showAtt) {
           await Future.delayed(const Duration(seconds: 1));
-          final status = await AppTrackingTransparency.requestTrackingAuthorization();
+          final status =
+              await AppTrackingTransparency.requestTrackingAuthorization();
           print('Tracking authorization status: $status');
+          
+          // Start AppsFlyer SDK with appropriate settings based on permission
+          startAppsFlyerTracking(appsflyerSdk, status == TrackingStatus.authorized);
+        } else {
+          // If show_att is false, start AppsFlyer without full tracking
+          startAppsFlyerTracking(appsflyerSdk, false);
         }
       } catch (e) {
         print('Failed to request tracking authorization: $e');
+        // Start AppsFlyer even on error, but without full tracking
+        startAppsFlyerTracking(appsflyerSdk, false);
       }
-      
+
       // Get device information
       final deviceInfo = await getDeviceInfo();
-      
+
       // Replace placeholders in URL
-      var finalUrl = url.asString()
-        .replaceAll('{bundle_id}', deviceInfo['bundle_id']!)
-        .replaceAll('{uuid}', deviceInfo['uuid']!)
-        .replaceAll('{idfa}', deviceInfo['idfa']!)
-        .replaceAll('{idfv}', deviceInfo['idfv']!)
-        .replaceAll('{appsflyer_id}', deviceInfo['appsflyer_id']!);
-        
+      var finalUrl = url
+          .asString()
+          .replaceAll('{bundle_id}', deviceInfo['bundle_id']!)
+          .replaceAll('{uuid}', deviceInfo['uuid']!)
+          .replaceAll('{idfa}', deviceInfo['idfa']!)
+          .replaceAll('{idfv}', deviceInfo['idfv']!)
+          .replaceAll('{appsflyer_id}', deviceInfo['appsflyer_id']!);
+
       print('Final URL with parameters: $finalUrl');
-      
+
       // Launch WebView with the URL
       runApp(MaterialApp(
         home: WebViewScreen(url: finalUrl),
         debugShowCheckedModeBanner: false,
       ));
       return;
+    } else {
+      // Start AppsFlyer for main app flow as well
+      // Request ATT if needed
+      if (showAtt) {
+        try {
+          final status =
+              await AppTrackingTransparency.requestTrackingAuthorization();
+          startAppsFlyerTracking(appsflyerSdk, status == TrackingStatus.authorized);
+        } catch (e) {
+          print('Failed to request tracking authorization: $e');
+          startAppsFlyerTracking(appsflyerSdk, false);
+        }
+      } else {
+        // Start without full tracking if show_att is false
+        startAppsFlyerTracking(appsflyerSdk, false);
+      }
     }
 
     // Preload cache
@@ -248,33 +274,45 @@ Future<String> fetchDevKeyFromRemoteConfig() async {
   }
 }
 
-void initAppsFlyer(String devKey, bool isTrackingAllowed) {
-  // Set timeToWaitForATTUserAuthorization based on tracking permission
-  final double timeToWait = isTrackingAllowed ? 10 : 0;
 
+// Modified to create instance but not start tracking
+AppsflyerSdk initAppsFlyerInstance(String devKey) {
   final AppsFlyerOptions options = AppsFlyerOptions(
       afDevKey: devKey,
       appId: "6741157554",
       showDebug: true,
-      timeToWaitForATTUserAuthorization: timeToWait, // Set based on permission
-      manualStart: false);
+      timeToWaitForATTUserAuthorization: 0, // Give time for ATT dialog
+      manualStart: true); // Important: We'll manually start it later
+      
+  return AppsflyerSdk(options);
+}
 
-  final appsflyerSdk = AppsflyerSdk(options);
-
-  if (isTrackingAllowed) {
-    // Initialize AppsFlyer SDK ONLY if tracking is allowed
-    appsflyerSdk.initSdk(
-        registerConversionDataCallback: true,
-        registerOnAppOpenAttributionCallback: true,
-        registerOnDeepLinkingCallback: true);
-    appsflyerSdk.startSDK(
-      onSuccess: () => print("AppsFlyer SDK initialized successfully."),
-      onError: (int errorCode, String errorMessage) => print(
-          "Error initializing AppsFlyer SDK: Code $errorCode - $errorMessage"),
-    );
-  } else {
-    print("Tracking denied, skipping AppsFlyer initialization.");
-  }
+// New function to start tracking with appropriate settings
+void startAppsFlyerTracking(AppsflyerSdk appsflyerSdk, bool isTrackingAllowed) {
+  // Always initialize SDK with appropriate callbacks
+  appsflyerSdk.initSdk(
+      registerConversionDataCallback: true,
+      registerOnAppOpenAttributionCallback: true,
+      registerOnDeepLinkingCallback: true);
+  
+  // Start SDK
+  appsflyerSdk.startSDK(
+    onSuccess: () {
+      print("AppsFlyer SDK initialized successfully.");
+      
+      // Log app open event if tracking is allowed
+      if (isTrackingAllowed) {
+        appsflyerSdk.logEvent("app_open", {
+          "first_open_time": DateTime.now().toIso8601String(),
+        });
+      }
+    },
+    onError: (int errorCode, String errorMessage) => 
+        print("Error initializing AppsFlyer SDK: Code $errorCode - $errorMessage"),
+  );
+  
+  // Log limited events even if tracking isn't fully allowed
+  appsflyerSdk.logEvent("af_first_open", {});
 }
 
 class MyApp extends StatefulWidget {

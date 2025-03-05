@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../repositories/dashboard_repository.dart';
 import '../services/favorites_service.dart';
-import '../services/notification_service.dart';
 import '../services/review_service.dart';
 import '../services/streaming_service.dart';
 import 'review_screen.dart';
@@ -100,20 +99,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
       );
 
       if (pickedTime != null) {
-        final DateTime scheduledTime = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
-
-        await NotificationService.instance.scheduleMovieReminder(
-          movieTitle: widget.movie['title'],
-          scheduledTime: scheduledTime,
-          movieId: _movieId,
-          context: context,
-        );
 
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
