@@ -8,7 +8,9 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 // import 'package:moviemagicbox/assets/ads/native_ad.dart';
 import 'package:moviemagicbox/screens/info_screen.dart';
 import 'package:moviemagicbox/screens/library_screen.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import '../repositories/dashboard_repository.dart';
+import '../services/ads_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -17,17 +19,20 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProviderStateMixin {
+class _DashboardScreenState extends State<DashboardScreen>
+    with SingleTickerProviderStateMixin {
   late Future<Map<String, List<Map<String, dynamic>>>> dashboardData;
   int _currentCarouselIndex = 0;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   // final InterstitialAdManager interstitialAdManager = InterstitialAdManager();
+  final AdsService _adsService = AdsService();
 
   @override
   void initState() {
     super.initState();
     // interstitialAdManager.loadInterstitialAd();
+    print('DEBUG: DashboardScreen - initState');
     dashboardData = DashboardRepository.fetchDashboardData();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
@@ -47,42 +52,55 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    print('DEBUG: DashboardScreen - build method called');
     return Scaffold(
       backgroundColor: Colors.black,
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
-      future: dashboardData,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
+          future: dashboardData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              print('DEBUG: DashboardScreen - Data is still loading');
+              return const Center(
                 child: CircularProgressIndicator(color: Colors.red),
               );
             }
 
             if (snapshot.hasError) {
+              print(
+                  'DEBUG: DashboardScreen - Error loading data: ${snapshot.error}');
               return Center(
-            child: Text(
+                child: Text(
                   'Error: ${snapshot.error}',
                   style: const TextStyle(color: Colors.white),
-            ),
-          );
-        }
+                ),
+              );
+            }
 
-        final data = snapshot.data!;
+            print('DEBUG: DashboardScreen - Data loaded successfully');
+            final data = snapshot.data!;
             return SafeArea(
               child: CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         const SizedBox(height: 20),
                         _buildCarousel(data["topRatedMovies"]!),
                         const SizedBox(height: 20),
-                        _buildSection("Top Rated Movies", data["topRatedMovies"]!),
+                        // Banner ad between carousels
+
+                        _buildSection(
+                            "Top Rated Movies", data["topRatedMovies"]!),
                         const SizedBox(height: 20),
-                        _buildSection("Top Rated TV Shows", data["topRatedTvShows"]!),
+                        _buildBannerAd(),
+                        const SizedBox(height: 20),
+                        _buildSection(
+                            "Top Rated TV Shows", data["topRatedTvShows"]!),
+                        const SizedBox(height: 20),
+                        _buildBannerAd(),
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -339,7 +357,8 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                         Image.network(
                           movie["poster"] ?? "",
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
                             color: Colors.grey[900],
                             child: const Icon(Icons.error, color: Colors.white),
                           ),
@@ -398,12 +417,28 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                       ],
                     ),
                   ),
-          ),
-        );
-      },
+                ),
+              );
+            },
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildBannerAd() {
+    return Center(
+      child: Container(
+        height: 60,
+        child: Builder(
+          builder: (context) {
+            print('DEBUG: DashboardScreen - Building banner ad widget');
+            final adWidget = _adsService.showBannerAd();
+            print('DEBUG: DashboardScreen - Banner ad widget created');
+            return adWidget;
+          },
+        ),
+      ),
     );
   }
 

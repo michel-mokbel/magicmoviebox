@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:moviemagicbox/screens/info_screen.dart';
 import '../services/movie_service.dart';
+import '../services/ads_service.dart';
+
 
 class LibraryScreen extends StatefulWidget {
   final String type; // Accept 'movie' or 'tv_show'
@@ -13,6 +15,7 @@ class LibraryScreen extends StatefulWidget {
 class _LibraryScreenState extends State<LibraryScreen> {
   late Future<List<Map<String, dynamic>>> libraryItems;
   late String selectedType;
+  final AdsService _adsService = AdsService();
 
   @override
   void initState() {
@@ -41,7 +44,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
       backgroundColor: Colors.black,
       body: Column(
         children: [
-          // const BannerAdWidget(),
+          // Banner ad at the top
+          Center(
+            child: SizedBox(
+              height: 60,
+              child: _adsService.showBannerAd(),
+            ),
+          ),
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
               future: libraryItems,
@@ -75,7 +84,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     crossAxisCount: 3,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
-                    childAspectRatio: 0.7,
+                    childAspectRatio: 0.6,
                   ),
                   itemCount: items.length,
                   itemBuilder: (context, index) {
@@ -84,9 +93,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 );
               },
             ),
-            
           ),
-
+          // Banner ad at the bottom
+          // Center(
+          //   child: SizedBox(
+          //     height: 60,
+          //     child: _adsService.showBannerAd(),
+          //   ),
+          // ),
         ],
       ),
     );

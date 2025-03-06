@@ -1,6 +1,4 @@
 
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 

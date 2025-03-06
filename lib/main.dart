@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+import 'dart:io' as dart;
+import 'dart:io' as io;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:moviemagicbox/screens/welcome_screen.dart';
 import 'package:moviemagicbox/services/movie_service.dart';
@@ -10,9 +12,11 @@ import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:app_set_id/app_set_id.dart';
-import 'dart:convert';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:convert';
+import 'package:moviemagicbox/services/ads_service.dart';
 
 class WebViewScreen extends StatelessWidget {
   final String url;
@@ -92,7 +96,7 @@ Future<String?> getAppsFlyerId() async {
       print('Error fetching dev key: $e');
       return 'TVuiYiPd4Bu5wzUuZwTymX';
     });
-    
+
     final appsflyerSdk = initAppsFlyerInstance(devKey);
     final result = await appsflyerSdk.getAppsFlyerUID();
     return result;
@@ -146,23 +150,33 @@ Future<Map<String, String>> getDeviceInfo() async {
 
 Future<void> main() async {
   try {
+    print('DEBUG: main() function started');
     WidgetsFlutterBinding.ensureInitialized();
+    print('DEBUG: Flutter binding initialized');
 
     // Initialize Firebase
     try {
       await Firebase.initializeApp();
-      print('Firebase initialized successfully');
+      print('DEBUG: Firebase initialized successfully');
     } catch (e) {
-      print('Failed to initialize Firebase: $e');
+      print('DEBUG: Failed to initialize Firebase: $e');
     }
 
+    // Initialize AdsService early
+    print('DEBUG: About to initialize AdsService');
+    final adsService = AdsService();
+    await adsService.initialize(); // Add await here to ensure it completes
+    print('DEBUG: AdsService initialization completed');
+
     // Initialize remote config
+    print('DEBUG: About to initialize Remote Config');
     final remoteConfig = FirebaseRemoteConfig.instance;
     await remoteConfig.setConfigSettings(RemoteConfigSettings(
       fetchTimeout: const Duration(minutes: 1),
       minimumFetchInterval: const Duration(minutes: 1),
     ));
     await remoteConfig.fetchAndActivate();
+    print('DEBUG: Remote Config initialized and fetched');
 
     // Get URL and show_att from remote config
     final url = remoteConfig.getValue('url');
@@ -179,7 +193,7 @@ Future<void> main() async {
       print('Error fetching dev key: $e');
       return 'TVuiYiPd4Bu5wzUuZwTymX';
     });
-    
+
     // Create AppsFlyer instance early - will be started after ATT check
     final appsflyerSdk = initAppsFlyerInstance(devKey);
 
@@ -191,9 +205,11 @@ Future<void> main() async {
           final status =
               await AppTrackingTransparency.requestTrackingAuthorization();
           print('Tracking authorization status: $status');
-          
-          // Start AppsFlyer SDK with appropriate settings based on permission
-          startAppsFlyerTracking(appsflyerSdk, status == TrackingStatus.authorized);
+
+          if (status == TrackingStatus.authorized) {
+            // Start AppsFlyer SDK with appropriate settings based on permission
+            startAppsFlyerTracking(appsflyerSdk, true);
+          }
         } else {
           // If show_att is false, start AppsFlyer without full tracking
           startAppsFlyerTracking(appsflyerSdk, false);
@@ -231,7 +247,9 @@ Future<void> main() async {
         try {
           final status =
               await AppTrackingTransparency.requestTrackingAuthorization();
-          startAppsFlyerTracking(appsflyerSdk, status == TrackingStatus.authorized);
+          if (status == TrackingStatus.authorized) {
+            startAppsFlyerTracking(appsflyerSdk, true);
+          }
         } catch (e) {
           print('Failed to request tracking authorization: $e');
           startAppsFlyerTracking(appsflyerSdk, false);
@@ -274,14 +292,21 @@ Future<String> fetchDevKeyFromRemoteConfig() async {
   }
 }
 
-
 // Modified to create instance but not start tracking
 AppsflyerSdk initAppsFlyerInstance(String devKey) {
+  // Ensure dev key is not empty
+  if (devKey.isEmpty) {
+    print("WARNING: Empty dev key detected, using default key");
+    devKey = 'TVuiYiPd4Bu5wzUuZwTymX';
+  }
+  
+  print("Initializing AppsFlyer with dev key: $devKey");
+  
   final AppsFlyerOptions options = AppsFlyerOptions(
       afDevKey: devKey,
       appId: "6741157554",
       showDebug: true,
-      timeToWaitForATTUserAuthorization: 0, // Give time for ATT dialog
+      timeToWaitForATTUserAuthorization: 1, // Give time for ATT dialog
       manualStart: true); // Important: We'll manually start it later
       
   return AppsflyerSdk(options);
@@ -289,30 +314,87 @@ AppsflyerSdk initAppsFlyerInstance(String devKey) {
 
 // New function to start tracking with appropriate settings
 void startAppsFlyerTracking(AppsflyerSdk appsflyerSdk, bool isTrackingAllowed) {
+  // Setup install attribution callbacks
+  appsflyerSdk.onInstallConversionData((res) {
+    print("AppsFlyer Install Conversion Data: $res");
+    final data = res["data"];
+    if (data != null) {
+      // Check if it's a new install
+      final isFirstLaunch = data["is_first_launch"];
+      if (isFirstLaunch != null && isFirstLaunch.toString() == "true") {
+        print("This is a new AppsFlyer install!");
+        // Handle new install here (e.g., show special first-time user screens, etc.)
+      }
+
+      // Check attribution source
+      final mediaSource = data["media_source"];
+      if (mediaSource != null) {
+        print("Install attributed to: $mediaSource");
+      }
+
+      // Store attribution data if needed
+      final campaign = data["campaign"];
+      if (campaign != null) {
+        // You might want to save this to shared preferences or pass to analytics
+        print("Campaign: $campaign");
+      }
+    }
+  });
+
+  // Helper function to determine user type based on shared preferences
+  Future<String> getUserTypeAsync() async {
+    try {
+      final prefInstance = await SharedPreferences.getInstance();
+      final firstOpen = prefInstance.getBool('first_open') ?? true;
+      if (firstOpen) {
+        await prefInstance.setBool('first_open', false);
+        return "new_user";
+      } else {
+        return "returning_user";
+      }
+    } catch (e) {
+      print("Error determining user type: $e");
+      return "unknown";
+    }
+  }
+
+  appsflyerSdk.onAppOpenAttribution((res) {
+    print("AppsFlyer App Open Attribution: $res");
+    // Handle deep link data here
+  });
+
   // Always initialize SDK with appropriate callbacks
   appsflyerSdk.initSdk(
       registerConversionDataCallback: true,
       registerOnAppOpenAttributionCallback: true,
       registerOnDeepLinkingCallback: true);
-  
+
   // Start SDK
   appsflyerSdk.startSDK(
-    onSuccess: () {
+    onSuccess: () async {
       print("AppsFlyer SDK initialized successfully.");
-      
+
       // Log app open event if tracking is allowed
       if (isTrackingAllowed) {
-        appsflyerSdk.logEvent("app_open", {
-          "first_open_time": DateTime.now().toIso8601String(),
+        // Get user type asynchronously
+        final userType = await getUserTypeAsync();
+        
+        appsflyerSdk.logEvent("user_session_started", {
+          "session_start_time": DateTime.now().toIso8601String(),
+          "tracking_permission_granted": true,
+          "user_type": userType,
         });
       }
     },
-    onError: (int errorCode, String errorMessage) => 
-        print("Error initializing AppsFlyer SDK: Code $errorCode - $errorMessage"),
+    onError: (int errorCode, String errorMessage) => print(
+        "Error initializing AppsFlyer SDK: Code $errorCode - $errorMessage"),
   );
-  
+
   // Log limited events even if tracking isn't fully allowed
-  appsflyerSdk.logEvent("af_first_open", {});
+  appsflyerSdk.logEvent("app_installation_completed", {
+    "installation_time": DateTime.now().toIso8601String(),
+    "tracking_enabled": isTrackingAllowed,
+  });
 }
 
 class MyApp extends StatefulWidget {
@@ -332,6 +414,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // Initialize AdsService instead of directly initializing Unity Ads
+    AdsService().initialize();
   }
 
   void setLocale(Locale locale) {

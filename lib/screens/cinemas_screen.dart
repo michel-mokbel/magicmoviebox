@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../services/ads_service.dart';
 
 class CinemasScreen extends StatefulWidget {
   const CinemasScreen({super.key});
@@ -22,6 +23,7 @@ class _CinemasScreenState extends State<CinemasScreen> {
   Set<Marker> _markers = {};
   final String _apiKey = 'AIzaSyCsiw4EUdPsStONc7B3rLOh9gwxdP6IE7U';
   bool _mapInitialized = false;
+  final AdsService _adsService = AdsService();
 
   @override
   void initState() {
@@ -282,115 +284,143 @@ class _CinemasScreenState extends State<CinemasScreen> {
         ),
         centerTitle: true,
       ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.red),
-            )
-          : _error != null
-              ? _buildErrorWidget(_error!)
-              : _currentPosition == null
-                  ? _buildErrorWidget('Location not available')
-                  : Column(
-                      children: [
-                        _buildMap(),
-                        Expanded(
-                          child: _nearbyCinemas.isEmpty
-                              ? const Center(
-                                  child: Text(
-                                    'No cinemas found nearby',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                )
-                              : ListView.builder(
-                                  itemCount: _nearbyCinemas.length,
-                                  itemBuilder: (context, index) {
-                                    final cinema = _nearbyCinemas[index];
-                                    final location = cinema['geometry']['location'];
-                                    
-                                    return Card(
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 5,
-                                      ),
-                                      color: Colors.grey[900],
-                                      child: ListTile(
-                                        leading: cinema['photos'] != null && cinema['photos'].isNotEmpty
-                                            ? CachedNetworkImage(
-                                                imageUrl: 'https://maps.googleapis.com/maps/api/place/photo'
-                                                    '?maxwidth=100'
-                                                    '&photo_reference=${cinema['photos'][0]['photo_reference']}'
-                                                    '&key=$_apiKey',
-                                                height: 40,
-                                                width: 40,
-                                                placeholder: (context, url) => const Icon(
-                                                  Icons.movie,
-                                                  size: 40,
-                                                  color: Colors.red,
-                                                ),
-                                                errorWidget: (context, url, error) => const Icon(
-                                                  Icons.movie,
-                                                  size: 40,
-                                                  color: Colors.red,
-                                                ),
-                                              )
-                                            : const Icon(
-                                                Icons.movie,
-                                                size: 40,
-                                                color: Colors.red,
-                                              ),
-                                        title: Text(
-                                          cinema['name'],
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+      body: Column(
+        children: [
+          // Banner ad at the top
+          Container(
+            height: 60,
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: _adsService.showBannerAd(),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: Colors.red),
+                  )
+                : _error != null
+                    ? _buildErrorWidget(_error!)
+                    : _currentPosition == null
+                        ? _buildErrorWidget('Location not available')
+                        : Column(
+                            children: [
+                              _buildMap(),
+                              Expanded(
+                                child: _nearbyCinemas.isEmpty
+                                    ? const Center(
+                                        child: Text(
+                                          'No cinemas found nearby',
+                                          style: TextStyle(color: Colors.white),
                                         ),
-                                        subtitle: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              cinema['vicinity'] ?? '',
-                                              style: const TextStyle(color: Colors.grey),
+                                      )
+                                    : ListView.builder(
+                                        itemCount: _nearbyCinemas.length,
+                                        itemBuilder: (context, index) {
+                                          final cinema = _nearbyCinemas[index];
+                                          final location = cinema['geometry']['location'];
+                                          
+                                          return Card(
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 5,
                                             ),
-                                            if (cinema['rating'] != null)
-                                              Row(
-                                                children: [
-                                                  const Icon(Icons.star, size: 16, color: Colors.amber),
-                                                  Text(
-                                                    ' ${cinema['rating']}',
-                                                    style: const TextStyle(color: Colors.grey),
-                                                  ),
-                                                  if (cinema['user_ratings_total'] != null)
-                                                    Text(
-                                                      ' (${cinema['user_ratings_total']} reviews)',
-                                                      style: const TextStyle(color: Colors.grey),
+                                            color: Colors.grey[900],
+                                            child: ListTile(
+                                              leading: cinema['photos'] != null && cinema['photos'].isNotEmpty
+                                                  ? CachedNetworkImage(
+                                                      imageUrl: 'https://maps.googleapis.com/maps/api/place/photo'
+                                                          '?maxwidth=100'
+                                                          '&photo_reference=${cinema['photos'][0]['photo_reference']}'
+                                                          '&key=$_apiKey',
+                                                      height: 40,
+                                                      width: 40,
+                                                      placeholder: (context, url) => const Icon(
+                                                        Icons.movie,
+                                                        size: 40,
+                                                        color: Colors.red,
+                                                      ),
+                                                      errorWidget: (context, url, error) => const Icon(
+                                                        Icons.movie,
+                                                        size: 40,
+                                                        color: Colors.red,
+                                                      ),
+                                                    )
+                                                  : const Icon(
+                                                      Icons.movie,
+                                                      size: 40,
+                                                      color: Colors.red,
                                                     ),
+                                              title: Text(
+                                                cinema['name'],
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              subtitle: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    cinema['vicinity'] ?? 'Unknown location',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        'Rating: ${cinema['rating']?.toString() ?? 'N/A'}',
+                                                        style: const TextStyle(
+                                                          color: Colors.amber,
+                                                        ),
+                                                      ),
+                                                      if (cinema['opening_hours'] != null)
+                                                        Text(
+                                                          cinema['opening_hours']['open_now'] ? 'Open Now' : 'Closed',
+                                                          style: TextStyle(
+                                                            color: cinema['opening_hours']['open_now'] ? Colors.green : Colors.red,
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
                                                 ],
                                               ),
-                                          ],
-                                        ),
-                                        trailing: IconButton(
-                                          icon: const Icon(Icons.directions, color: Colors.red),
-                                          onPressed: () => _launchMaps(
-                                            location['lat'],
-                                            location['lng'],
-                                            cinema['place_id'],
-                                          ),
-                                        ),
-                                        onTap: () {
-                                          _mapController?.animateCamera(
-                                            CameraUpdate.newLatLng(
-                                              LatLng(location['lat'], location['lng']),
+                                              trailing: IconButton(
+                                                icon: const Icon(Icons.directions, color: Colors.red),
+                                                onPressed: () => _launchMaps(
+                                                  location['lat'],
+                                                  location['lng'],
+                                                  cinema['place_id'],
+                                                ),
+                                              ),
+                                              onTap: () async {
+                                                final lat = location['lat'];
+                                                final lng = location['lng'];
+                                                await _openInGoogleMaps(lat, lng, cinema['name']);
+                                              },
                                             ),
                                           );
                                         },
                                       ),
-                                    );
-                                  },
-                                ),
-                        ),
-                      ],
-                    ),
+                              ),
+                            ],
+                          ),
+          ),
+        ],
+      ),
     );
+  }
+
+  Future<void> _openInGoogleMaps(double lat, double lng, String name) async {
+    // Show interstitial ad
+    await _adsService.showInterstitialAd();
+    
+    // Open in Google Maps
+    final Uri url = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$lat,$lng&query_place_id=${Uri.encodeComponent(name)}',
+    );
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
+    }
   }
 } 

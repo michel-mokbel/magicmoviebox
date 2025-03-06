@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../services/notification_service.dart';
 import 'package:intl/intl.dart';
 
 class RemindersScreen extends StatefulWidget {

@@ -7,6 +7,7 @@ import '../repositories/dashboard_repository.dart';
 import '../services/favorites_service.dart';
 import '../services/review_service.dart';
 import '../services/streaming_service.dart';
+import '../services/ads_service.dart';
 import 'review_screen.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
@@ -18,12 +19,14 @@ class MovieDetailsScreen extends StatefulWidget {
   State<MovieDetailsScreen> createState() => _MovieDetailsScreenState();
 }
 
-class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTickerProviderStateMixin {
+class _MovieDetailsScreenState extends State<MovieDetailsScreen>
+    with SingleTickerProviderStateMixin {
   late Future<Map<String, List<Map<String, dynamic>>>> dashboardData;
   late Future<Review?> userReview;
   late Future<List<Review>> allReviews;
   late Future<Map<String, dynamic>> streamingData;
   // final InterstitialAdManager AdManager = InterstitialAdManager();
+  final AdsService _adsService = AdsService();
   bool _isFavorite = false;
   late String _movieId;
   late TabController _tabController;
@@ -33,15 +36,15 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
   @override
   void initState() {
     super.initState();
-    _movieId = widget.movie['imdbID'] ?? '${widget.movie["title"]}_${widget.movie["year"]}';
+    _movieId = widget.movie['imdbID'] ??
+        '${widget.movie["title"]}_${widget.movie["year"]}';
     // interstitialAdManager.loadInterstitialAd();
     dashboardData = DashboardRepository.fetchDashboardData();
     _checkFavoriteStatus();
     _loadReviews();
     streamingData = StreamingService.getStreamingAvailability(
-      widget.movie["title"],
-      type: widget.movie["type"] ?? 'movie'
-    );
+        widget.movie["title"],
+        type: widget.movie["type"] ?? 'movie');
     _tabController = TabController(length: 3, vsync: this);
     _scrollController = ScrollController()
       ..addListener(() {
@@ -71,14 +74,71 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
   }
 
   Future<void> _toggleFavorite() async {
-    setState(() {
-      _isFavorite = !_isFavorite;
-    });
-
+    print(
+        'DEBUG: InfoScreen - _toggleFavorite called, current status: $_isFavorite');
+    // If already a favorite, just remove it without showing an ad
     if (_isFavorite) {
-      await FavoritesService.addToFavorites(widget.movie);
-    } else {
+      print('DEBUG: InfoScreen - Removing from favorites');
+      setState(() {
+        _isFavorite = false;
+      });
       await FavoritesService.removeFromFavorites(_movieId);
+      return;
+    }
+
+    // If not a favorite, directly show rewarded ad
+    // Show loading indicator
+    print('DEBUG: InfoScreen - Showing loading indicator for favorites ad');
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    // Show rewarded ad
+    print('DEBUG: InfoScreen - About to show rewarded ad for favorites');
+    final bool rewardEarned = await _adsService.showRewardedAd();
+    print(
+        'DEBUG: InfoScreen - Rewarded ad for favorites completed, reward earned: $rewardEarned');
+
+    // Dismiss loading indicator
+    if (context.mounted) {
+      print('DEBUG: InfoScreen - Dismissing loading indicator');
+      Navigator.of(context).pop();
+    }
+
+    if (rewardEarned) {
+      // Add to favorites if ad was watched
+      print('DEBUG: InfoScreen - Adding to favorites');
+      setState(() {
+        _isFavorite = true;
+      });
+      await FavoritesService.addToFavorites(widget.movie);
+
+      if (context.mounted) {
+        print('DEBUG: InfoScreen - Showing success snackbar');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Added to Watch Later!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } else {
+      // Show a message if ad failed or was skipped
+      if (context.mounted) {
+        print('DEBUG: InfoScreen - Showing failure snackbar');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please watch the entire ad to add to Watch Later.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
@@ -92,14 +152,13 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
 
     if (pickedDate != null) {
       if (!context.mounted) return;
-      
+
       final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.now(),
       );
 
       if (pickedTime != null) {
-
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -122,12 +181,50 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
     }
   }
 
+  // Show rewarded ad and play trailer without confirmation dialog
+  Future<void> _showAdAndPlayTrailer(String query) async {
+    print('DEBUG: InfoScreen - _showAdAndPlayTrailer called for query: $query');
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        print('DEBUG: InfoScreen - Showing loading indicator for trailer ad');
+        return const Center(
+          child: CircularProgressIndicator(color: Colors.red),
+        );
+      },
+    );
+
+    // Show rewarded ad
+    print('DEBUG: InfoScreen - About to show rewarded ad for trailer');
+    final bool rewardEarned = await _adsService.showRewardedAd();
+    print(
+        'DEBUG: InfoScreen - Rewarded ad for trailer completed, reward earned: $rewardEarned');
+
+    // Dismiss loading indicator
+    if (context.mounted) {
+      print('DEBUG: InfoScreen - Dismissing loading indicator');
+      Navigator.of(context).pop();
+    }
+
+    if (rewardEarned) {
+      print('DEBUG: InfoScreen - Launching YouTube search for: $query');
+      _launchYouTubeSearch(query);
+    } else {
+      if (context.mounted) {
+        print('DEBUG: InfoScreen - Showing snackbar: ad not completed');
+      }
+    }
+  }
+
   Widget _buildReviewsSection() {
     return FutureBuilder<Review?>(
       future: userReview,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: Colors.red));
+          return const Center(
+              child: CircularProgressIndicator(color: Colors.red));
         }
 
         final existingReview = snapshot.data;
@@ -181,11 +278,14 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
                 ],
               ),
             ),
+            // Add banner ad in reviews section
+
             FutureBuilder<List<Review>>(
               future: allReviews,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: Colors.red));
+                  return const Center(
+                      child: CircularProgressIndicator(color: Colors.red));
                 }
 
                 final reviews = snapshot.data ?? [];
@@ -232,7 +332,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
                                 ),
                                 Row(
                                   children: [
-                                    const Icon(Icons.star, color: Colors.amber, size: 20),
+                                    const Icon(Icons.star,
+                                        color: Colors.amber, size: 20),
                                     const SizedBox(width: 4),
                                     Text(
                                       review.rating.toStringAsFixed(1),
@@ -253,7 +354,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
                             const SizedBox(height: 8),
                             Text(
                               'Posted on ${_formatDate(review.timestamp)}',
-                              style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                              style: TextStyle(
+                                  color: Colors.grey[400], fontSize: 12),
                             ),
                           ],
                         ),
@@ -262,6 +364,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
                   },
                 );
               },
+            ),
+            Center(
+              child: SizedBox(
+                height: 60,
+                child: _adsService.showBannerAd(),
+              ),
             ),
           ],
         );
@@ -286,15 +394,15 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
             pinned: true,
             backgroundColor: Colors.transparent,
             flexibleSpace: FlexibleSpaceBar(
-              title: _showTitle 
-                ? Text(
-                    widget.movie["title"],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                : null,
+              title: _showTitle
+                  ? Text(
+                      widget.movie["title"],
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : null,
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -337,38 +445,40 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
-                          children: _getChipsData().map((chipData) => 
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Colors.red, Color(0xFF8B0000)],
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    chipData['icon'] as IconData,
-                                    color: Colors.white,
-                                    size: 16,
+                          children: _getChipsData()
+                              .map(
+                                (chipData) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    chipData['label'],
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Colors.red, Color(0xFF8B0000)],
                                     ),
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ).toList(),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        chipData['icon'] as IconData,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        chipData['label'],
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                              .toList(),
                         ),
                       ],
                     ),
@@ -445,25 +555,35 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
           const SizedBox(height: 8),
           ExpandableText(text: widget.movie["plot"] ?? "No plot available."),
           const SizedBox(height: 24),
+          // Add banner ad between synopsis and cast
+          Center(
+            child: SizedBox(
+              height: 60,
+              child: _adsService.showBannerAd(),
+            ),
+          ),
+          const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: (widget.movie["cast"] as List<String>? ?? []).map((actor) =>
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[900],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  actor,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ).toList(),
+            children: (widget.movie["cast"] as List<String>? ?? [])
+                .map(
+                  (actor) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[900],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      actor,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -498,9 +618,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
               "Watch Now",
               style: TextStyle(color: Colors.grey),
             ),
-            onTap: () => _launchYouTubeSearch(widget.movie["title"]),
+            onTap: () => _showAdAndPlayTrailer(widget.movie["title"]),
           ),
           const Divider(color: Colors.grey),
+          // Add banner ad between trailer and streaming options
+
           FutureBuilder<Map<String, dynamic>>(
             future: streamingData,
             builder: (context, snapshot) {
@@ -519,7 +641,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
                 );
               }
 
-              final streamingInfo = snapshot.data?['result']?[0]?['streamingInfo']?['ae'];
+              final streamingInfo =
+                  snapshot.data?['result']?[0]?['streamingInfo']?['ae'];
               if (streamingInfo == null || streamingInfo.isEmpty) {
                 return const Center(
                   child: Text(
@@ -543,62 +666,73 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> with SingleTick
                       ),
                     ),
                   ),
-                  ...streamingInfo.map<Widget>((service) =>
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[900],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
+                  ...streamingInfo
+                      .map<Widget>(
+                        (service) => Container(
+                          margin: const EdgeInsets.only(bottom: 8),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: service["service"] == "netflix"
-                                  ? [Colors.red, const Color(0xFF8B0000)]
-                                  : [Colors.blue, Colors.blueAccent],
-                            ),
+                            color: Colors.grey[900],
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Icon(
-                            service["service"] == "netflix"
-                                ? Icons.play_circle_filled
-                                : Icons.shopping_cart,
-                            color: Colors.white,
-                          ),
-                        ),
-                        title: Text(
-                          "${service["service"].toString().toUpperCase()} - ${service["streamingType"]}",
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        subtitle: service["price"] != null
-                            ? Text(
-                                service["price"]["formatted"],
-                                style: const TextStyle(color: Colors.grey),
-                              )
-                            : null,
-                        trailing: TextButton(
-                          onPressed: () async {
-                            final url = Uri.parse(service["link"]);
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url, mode: LaunchMode.externalApplication);
-                            }
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                          child: ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: service["service"] == "netflix"
+                                      ? [Colors.red, const Color(0xFF8B0000)]
+                                      : [Colors.blue, Colors.blueAccent],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                service["service"] == "netflix"
+                                    ? Icons.play_circle_filled
+                                    : Icons.shopping_cart,
+                                color: Colors.white,
+                              ),
+                            ),
+                            title: Text(
+                              "${service["service"].toString().toUpperCase()} - ${service["streamingType"]}",
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            subtitle: service["price"] != null
+                                ? Text(
+                                    service["price"]["formatted"],
+                                    style: const TextStyle(color: Colors.grey),
+                                  )
+                                : null,
+                            trailing: TextButton(
+                              onPressed: () async {
+                                final url = Uri.parse(service["link"]);
+                                if (await canLaunchUrl(url)) {
+                                  await launchUrl(url,
+                                      mode: LaunchMode.externalApplication);
+                                }
+                              },
+                              style: TextButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child: Text(
+                                service["streamingType"] == "subscription"
+                                    ? "Watch Now"
+                                    : "Buy/Rent",
+                                style: const TextStyle(color: Colors.white),
+                              ),
                             ),
                           ),
-                          child: Text(
-                            service["streamingType"] == "subscription" ? "Watch Now" : "Buy/Rent",
-                            style: const TextStyle(color: Colors.white),
-                          ),
                         ),
-                      ),
-                    ),
-                  ).toList(),
+                      )
+                      .toList(),
+                  Container(
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 16),
+                    height: 60,
+                    child: _adsService.showBannerAd(),
+                  ),
                 ],
               );
             },

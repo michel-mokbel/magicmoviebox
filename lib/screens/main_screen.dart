@@ -5,6 +5,7 @@ import 'package:moviemagicbox/screens/favorites_screen.dart';
 import 'package:moviemagicbox/screens/cinemas_screen.dart';
 import 'package:flutter_html/flutter_html.dart';
 import '../services/api_service.dart';
+import '../services/ads_service.dart';
 import 'dashboard_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -29,7 +30,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   final TextEditingController _messageController = TextEditingController();
   final List<Map<String, String>> _messages = [];
   final ApiService _apiService = ApiService();
+  final AdsService _adsService = AdsService();
   bool _isLoading = false;
+  int _previousIndex = 0;
 
   @override
   void initState() {
@@ -44,6 +47,19 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  // Show interstitial ad when changing tabs (with some logic to not show too frequently)
+  Future<void> _maybeShowInterstitial(int newIndex) async {
+    // Only show interstitial when navigating away from dashboard or every third navigation
+    if ((_previousIndex == 0 && newIndex != 0) || 
+        (currentIndex != newIndex && (DateTime.now().second % 3 == 0))) {
+      await _adsService.showInterstitialAd();
+    }
+    _previousIndex = currentIndex;
+    setState(() {
+      currentIndex = newIndex;
+    });
   }
 
   void _toggleChat() {
@@ -344,44 +360,53 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF1E1E1E), Color(0xFF2D2D2D)],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // // Banner Ad
+          // SizedBox(
+          //   height: 50,
+          //   child: _adsService.showBannerAd(),
+          // ),
+          // Navigation Bar
+          Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF1E1E1E), Color(0xFF2D2D2D)],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, -5),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: BottomNavigationBar(
-            currentIndex: currentIndex,
-            onTap: (index) {
-              setState(() {
-                currentIndex = index;
-              });
-            },
-            backgroundColor: Colors.transparent,
-            selectedItemColor: Colors.red,
-            unselectedItemColor: Colors.grey,
-            type: BottomNavigationBarType.fixed,
-            elevation: 0,
-            items: [
-              _buildNavItem(Icons.home, "Dashboard", 0),
-              _buildNavItem(Icons.search, "Search", 1),
-              _buildNavItem(Icons.theater_comedy, "Cinemas", 2),
-              _buildNavItem(Icons.watch_later, "Watch Later", 3),
-              _buildNavItem(Icons.settings, "Settings", 4),
-            ],
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              child: BottomNavigationBar(
+                currentIndex: currentIndex,
+                onTap: (index) {
+                  _maybeShowInterstitial(index);
+                },
+                backgroundColor: Colors.transparent,
+                selectedItemColor: Colors.red,
+                unselectedItemColor: Colors.grey,
+                type: BottomNavigationBarType.fixed,
+                elevation: 0,
+                items: [
+                  _buildNavItem(Icons.home, "Dashboard", 0),
+                  _buildNavItem(Icons.search, "Search", 1),
+                  _buildNavItem(Icons.theater_comedy, "Cinemas", 2),
+                  _buildNavItem(Icons.watch_later, "Watch Later", 3),
+                  _buildNavItem(Icons.settings, "Settings", 4),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
