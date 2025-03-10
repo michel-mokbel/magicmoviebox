@@ -21,7 +21,7 @@ class ApiService {
       "generationConfig": {
         "stopSequences": ["Title"],
         "temperature": 0.5,
-        "maxOutputTokens": 200,
+        "maxOutputTokens": 900,
         "topP": 0.8,
         "topK": 10
       }

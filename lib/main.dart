@@ -1,21 +1,18 @@
+// ignore_for_file: unused_field
+
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-import 'dart:io' as dart;
-import 'dart:io' as io;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:moviemagicbox/screens/welcome_screen.dart';
 import 'package:moviemagicbox/services/movie_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:app_set_id/app_set_id.dart';
-import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:convert';
 import 'package:moviemagicbox/services/ads_service.dart';
 
 class WebViewScreen extends StatelessWidget {
@@ -490,12 +487,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       locale: _locale ?? ui.window.locale,
       supportedLocales: const [
-        Locale('en', ''),
-        Locale('es', ''),
-        Locale('fr', ''),
-        Locale('ar', ''),
-        Locale('pl', ''),
-        Locale('bg', ''),
+        Locale('en', '')
       ],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
