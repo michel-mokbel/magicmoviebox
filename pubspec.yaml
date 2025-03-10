@@ -64,6 +64,7 @@ dependencies:
   webview_flutter: ^4.7.0
   app_set_id: ^1.2.1
   flutter_native_splash: ^2.4.4
+  unity_ads_plugin: ^0.3.23
 
 dev_dependencies:
   flutter_test:

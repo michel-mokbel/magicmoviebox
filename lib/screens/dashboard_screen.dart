@@ -8,7 +8,6 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 // import 'package:moviemagicbox/assets/ads/native_ad.dart';
 import 'package:moviemagicbox/screens/info_screen.dart';
 import 'package:moviemagicbox/screens/library_screen.dart';
-import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import '../repositories/dashboard_repository.dart';
 import '../services/ads_service.dart';
 

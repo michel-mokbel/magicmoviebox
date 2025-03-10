@@ -1,8 +1,5 @@
 PODS:
-  - advertising_identifier (1.0.0):
-    - advertising_identifier/vendor (= 1.0.0)
-    - Flutter
-  - advertising_identifier/vendor (1.0.0):
+  - app_set_id (1.2.1):
     - Flutter
   - app_tracking_transparency (0.0.1):
     - Flutter
@@ -50,6 +47,10 @@ PODS:
   - Flutter (1.0.0)
   - flutter_local_notifications (0.0.1):
     - Flutter
+  - flutter_native_splash (2.4.3):
+    - Flutter
+  - geocoding_ios (1.0.5):
+    - Flutter
   - geolocator_apple (1.2.0):
     - Flutter
   - Google-Maps-iOS-Utils (5.0.0):
@@ -93,6 +94,10 @@ PODS:
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
+  - unity_ads_plugin (0.0.1):
+    - Flutter
+    - UnityAds (= 4.13.0)
+  - UnityAds (4.13.0)
   - url_launcher_ios (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -100,13 +105,15 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
-  - advertising_identifier (from `.symlinks/plugins/advertising_identifier/ios`)
+  - app_set_id (from `.symlinks/plugins/app_set_id/ios`)
   - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
   - appsflyer_sdk (from `.symlinks/plugins/appsflyer_sdk/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_remote_config (from `.symlinks/plugins/firebase_remote_config/ios`)
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
+  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
+  - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
   - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
@@ -114,6 +121,7 @@ DEPENDENCIES:
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
+  - unity_ads_plugin (from `.symlinks/plugins/unity_ads_plugin/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
@@ -134,10 +142,11 @@ SPEC REPOS:
     - GoogleUserMessagingPlatform
     - GoogleUtilities
     - PromisesObjC
+    - UnityAds
 
 EXTERNAL SOURCES:
-  advertising_identifier:
-    :path: ".symlinks/plugins/advertising_identifier/ios"
+  app_set_id:
+    :path: ".symlinks/plugins/app_set_id/ios"
   app_tracking_transparency:
     :path: ".symlinks/plugins/app_tracking_transparency/ios"
   appsflyer_sdk:
@@ -150,6 +159,10 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
+  flutter_native_splash:
+    :path: ".symlinks/plugins/flutter_native_splash/ios"
+  geocoding_ios:
+    :path: ".symlinks/plugins/geocoding_ios/ios"
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/ios"
   google_maps_flutter_ios:
@@ -164,13 +177,15 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sqflite_darwin:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
+  unity_ads_plugin:
+    :path: ".symlinks/plugins/unity_ads_plugin/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   webview_flutter_wkwebview:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
-  advertising_identifier: 50d4c96e6843a3f906e05bf1419f09f7dc2b3b7e
+  app_set_id: e0349a05a0ecc6d5c937d42869aa941f90801c9c
   app_tracking_transparency: e169b653478da7bb15a6c61209015378ca73e375
   appsflyer_sdk: 0132c7cd33db42ce3daf878f02809a9f88756f9f
   AppsFlyerFramework: ad7ff0d22aa36c7f8cc4f71a5424e19b89ccb8ae
@@ -186,6 +201,8 @@ SPEC CHECKSUMS:
   FirebaseSharedSwift: a45efd84d60ebbfdcdbaebc66948af3630459e62
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_local_notifications: df98d66e515e1ca797af436137b4459b160ad8c9
+  flutter_native_splash: f71420956eb811e6d310720fee915f1d42852e7a
+  geocoding_ios: a389ea40f6f548de6e63006a2e31bf66ff80769a
   geolocator_apple: 9bcea1918ff7f0062d98345d238ae12718acfbc1
   Google-Maps-iOS-Utils: 66d6de12be1ce6d3742a54661e7a79cb317a9321
   Google-Mobile-Ads-SDK: 14f57f2dc33532a24db288897e26494640810407
@@ -199,9 +216,11 @@ SPEC CHECKSUMS:
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
+  unity_ads_plugin: e0a2c2b6587a56ce5e904958bc61e824fb11c536
+  UnityAds: 89a816d8497b5c910719b71697c74e6410ded37a
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: 0982481e3d9c78fd5c6f62a002fcd24fc791f1e4
 
-PODFILE CHECKSUM: 816067941dea97c3fce20abff5e448fb76fa7edc
+PODFILE CHECKSUM: 3e5a3f44c99c8b12c895f0f5251c9bbe575c994e
 
 COCOAPODS: 1.16.2

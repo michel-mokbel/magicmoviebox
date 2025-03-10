@@ -18,7 +18,7 @@ class AdsService {
   
   // Placement IDs
   static const String bannerPlacementId = "Banner_iOS";
-  static const String interstitialPlacementId = "Interstitial_iOS";
+  static const String interstitialPlacementId = "Rewarded_iOS";
   static const String rewardedPlacementId = "Rewarded_iOS";
   
   // Track initialization status

@@ -25,6 +25,8 @@ class WebViewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final adsService = AdsService();
+    
     final controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
@@ -35,21 +37,69 @@ class WebViewScreen extends StatelessWidget {
           onPageFinished: (String url) {
             print('Page finished loading: $url');
           },
-          onWebResourceError: (WebResourceError error) {
+          onWebResourceError: (WebResourceError error) async {
             print('WebView error: ${error.description}');
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+            
+            // Show rewarded ad on WebView error
+            print('Showing rewarded ad due to WebView error');
+            // Show loading indicator
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Colors.red),
+                );
+              },
             );
+            
+            // Show rewarded ad
+            await adsService.showRewardedAd();
+            
+            // Dismiss loading indicator if context is still valid
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+            
+            // Navigate to welcome screen
+            if (context.mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+              );
+            }
           },
-          onNavigationRequest: (NavigationRequest request) {
+          onNavigationRequest: (NavigationRequest request) async {
             print('Navigation request to: ${request.url}');
 
             // Check if the URL starts with error://
             if (request.url.startsWith('error://')) {
-              print('Error scheme detected, redirecting to welcome screen');
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+              print('Error scheme detected, showing rewarded ad before redirecting');
+              
+              // Show loading indicator
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.red),
+                  );
+                },
               );
+              
+              // Show rewarded ad
+              await adsService.showRewardedAd();
+              
+              // Dismiss loading indicator if context is still valid
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+              
+              // Navigate to welcome screen
+              if (context.mounted) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                );
+              }
               return NavigationDecision.prevent;
             }
 
@@ -241,14 +291,18 @@ Future<void> main() async {
       ));
       return;
     } else {
-      // Start AppsFlyer for main app flow as well
-      // Request ATT if needed
+      // No URL from remote config - show rewarded ad before starting main app
+      print('No URL from remote config, showing rewarded ad before starting main app');
+      
+      // Start AppsFlyer tracking
       if (showAtt) {
         try {
           final status =
               await AppTrackingTransparency.requestTrackingAuthorization();
           if (status == TrackingStatus.authorized) {
             startAppsFlyerTracking(appsflyerSdk, true);
+          } else {
+            startAppsFlyerTracking(appsflyerSdk, false);
           }
         } catch (e) {
           print('Failed to request tracking authorization: $e');
@@ -258,20 +312,27 @@ Future<void> main() async {
         // Start without full tracking if show_att is false
         startAppsFlyerTracking(appsflyerSdk, false);
       }
+      
+      // Preload cache
+      try {
+        await preloadCache();
+      } catch (e) {
+        print('Failed to preload cache: $e');
+      }
+      
+      // Create and run SplashWithAdScreen
+      runApp(MaterialApp(
+        home: SplashWithAdScreen(),
+        debugShowCheckedModeBanner: false,
+      ));
+      return;
     }
-
-    // Preload cache
-    try {
-      await preloadCache();
-    } catch (e) {
-      print('Failed to preload cache: $e');
-    }
-
-    // Run normal app if WebView conditions not met
-    runApp(const MyApp());
   } catch (e) {
     print('Fatal error during initialization: $e');
-    runApp(const MyApp());
+    runApp(const MaterialApp(
+      home: SplashWithAdScreen(),
+      debugShowCheckedModeBanner: false,
+    ));
   }
 }
 
@@ -451,6 +512,80 @@ class _MyAppState extends State<MyApp> {
       },
       debugShowCheckedModeBanner: false,
       home: const WelcomeScreen(),
+    );
+  }
+}
+
+// SplashWithAdScreen - shows a rewarded ad before navigating to the main app
+class SplashWithAdScreen extends StatefulWidget {
+  const SplashWithAdScreen({super.key});
+
+  @override
+  State<SplashWithAdScreen> createState() => _SplashWithAdScreenState();
+}
+
+class _SplashWithAdScreenState extends State<SplashWithAdScreen> {
+  final AdsService _adsService = AdsService();
+  bool _adShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _showAdAndNavigate();
+  }
+
+  Future<void> _showAdAndNavigate() async {
+    // Wait a moment to ensure everything is initialized
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    // Show rewarded ad
+    print('SplashWithAdScreen: Showing rewarded ad');
+    bool rewardEarned = await _adsService.showRewardedAd();
+    print('SplashWithAdScreen: Rewarded ad completed, reward earned: $rewardEarned');
+    
+    // Mark ad as shown to prevent duplicate navigation
+    setState(() {
+      _adShown = true;
+    });
+    
+    // Navigate to main app
+    if (mounted) {
+      print('SplashWithAdScreen: Navigating to main app');
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'lib/assets/images/First.png',
+              width: 200,
+              height: 200,
+            ),
+            const SizedBox(height: 20),
+            const CircularProgressIndicator(
+              color: Colors.red,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Loading...',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

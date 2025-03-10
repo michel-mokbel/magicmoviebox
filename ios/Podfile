@@ -59,7 +59,7 @@ post_install do |installer|
         'PERMISSION_LOCATION_ALWAYS=1',
         'PERMISSION_LOCATION_WHEN_IN_USE=1',
         ## dart: PermissionGroup.notification
-        'PERMISSION_NOTIFICATIONS=1',
+        'PERMISSION_NOTIFICATIONS=0',
         ## dart: PermissionGroup.phone
         'PERMISSION_PHONE=0',
       ]
