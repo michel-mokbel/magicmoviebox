@@ -19,6 +19,11 @@ class FavoritesService {
     return decoded.cast<Map<String, dynamic>>();
   }
 
+  static Future<int> getFavoritesCount() async {
+    final favorites = await getFavorites();
+    return favorites.length;
+  }
+
   static Future<void> addToFavorites(Map<String, dynamic> movie) async {
     final prefs = await SharedPreferences.getInstance();
     List<Map<String, dynamic>> favorites = await getFavorites();

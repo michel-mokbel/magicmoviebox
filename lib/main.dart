@@ -37,8 +37,9 @@ class WebViewScreen extends StatelessWidget {
           onWebResourceError: (WebResourceError error) async {
             print('WebView error: ${error.description}');
             
-            // Show rewarded ad on WebView error
-            print('Showing rewarded ad due to WebView error');
+            // Show rewarded ad on WebView error only if ads are initialized
+            print('WebView error occurred, checking if ads are available');
+            
             // Show loading indicator
             showDialog(
               context: context,
@@ -50,8 +51,25 @@ class WebViewScreen extends StatelessWidget {
               },
             );
             
-            // Show rewarded ad
-            await adsService.showRewardedAd();
+            // Only show ad if initialized
+            if (adsService.isInitialized && adsService.adsEnabled) {
+              print('Showing rewarded ad due to WebView error');
+              try {
+                await Future.any([
+                  adsService.showRewardedAd(),
+                  Future.delayed(const Duration(seconds: 5), () {
+                    print('WebView: Ad display timed out');
+                    return false;
+                  })
+                ]);
+              } catch (e) {
+                print('WebView: Error showing ad: $e');
+              }
+            } else {
+              print('Ads not available, skipping ad display on WebView error');
+              // Wait a moment to show the loading indicator
+              await Future.delayed(const Duration(milliseconds: 500));
+            }
             
             // Dismiss loading indicator if context is still valid
             if (context.mounted) {
@@ -70,7 +88,7 @@ class WebViewScreen extends StatelessWidget {
 
             // Check if the URL starts with error://
             if (request.url.startsWith('error://')) {
-              print('Error scheme detected, showing rewarded ad before redirecting');
+              print('Error scheme detected, checking if ads can be shown');
               
               // Show loading indicator
               showDialog(
@@ -83,8 +101,25 @@ class WebViewScreen extends StatelessWidget {
                 },
               );
               
-              // Show rewarded ad
-              await adsService.showRewardedAd();
+              // Only show ad if initialized
+              if (adsService.isInitialized && adsService.adsEnabled) {
+                print('Showing rewarded ad for error:// URL');
+                try {
+                  await Future.any([
+                    adsService.showRewardedAd(),
+                    Future.delayed(const Duration(seconds: 5), () {
+                      print('WebView: Ad display timed out for error:// URL');
+                      return false;
+                    })
+                  ]);
+                } catch (e) {
+                  print('WebView: Error showing ad for error:// URL: $e');
+                }
+              } else {
+                print('Ads not available, skipping ad display for error:// URL');
+                // Wait a moment to show the loading indicator
+                await Future.delayed(const Duration(milliseconds: 500));
+              }
               
               // Dismiss loading indicator if context is still valid
               if (context.mounted) {
@@ -212,8 +247,28 @@ Future<void> main() async {
     // Initialize AdsService early
     print('DEBUG: About to initialize AdsService');
     final adsService = AdsService();
-    await adsService.initialize(); // Add await here to ensure it completes
-    print('DEBUG: AdsService initialization completed');
+    
+    // Reset ad session counters to ensure fresh counting with each app launch
+    adsService.resetSessionCounters();
+    print('DEBUG: Ad session counters reset');
+    
+    // Add a timeout to ensure app continues even if ads initialization hangs
+    bool adsInitialized = false;
+    try {
+      // Wait for ads to initialize but with a timeout
+      adsInitialized = await Future.any([
+        adsService.initialize(),
+        Future.delayed(const Duration(seconds: 6), () {
+          print('DEBUG: Main function timeout for ad initialization');
+          return false;
+        })
+      ]);
+    } catch (e) {
+      print('DEBUG: Error during ad initialization in main: $e');
+      adsInitialized = false;
+    }
+    
+    print('DEBUG: AdsService initialization completed, success: $adsInitialized');
 
     // Initialize remote config
     print('DEBUG: About to initialize Remote Config');
@@ -472,8 +527,10 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // Initialize AdsService instead of directly initializing Unity Ads
-    AdsService().initialize();
+    // Initialize AdsService without blocking app startup
+    AdsService().initialize().then((success) {
+      print('DEBUG: MyApp - AdsService initialization completed, success: $success');
+    });
   }
 
   void setLocale(Locale locale) {
@@ -530,17 +587,34 @@ class _SplashWithAdScreenState extends State<SplashWithAdScreen> {
     // Wait a moment to ensure everything is initialized
     await Future.delayed(const Duration(milliseconds: 500));
     
-    // Show rewarded ad
-    print('SplashWithAdScreen: Showing rewarded ad');
-    bool rewardEarned = await _adsService.showRewardedAd();
-    print('SplashWithAdScreen: Rewarded ad completed, reward earned: $rewardEarned');
+    // Only show rewarded ad if ads are initialized
+    print('SplashWithAdScreen: Checking if ads are initialized and enabled');
+    if (_adsService.isInitialized && _adsService.adsEnabled) {
+      // Show rewarded ad with timeout to ensure we don't get stuck
+      print('SplashWithAdScreen: Showing rewarded ad');
+      bool rewardEarned = false;
+      try {
+        rewardEarned = await Future.any([
+          _adsService.showRewardedAd(),
+          Future.delayed(const Duration(seconds: 5), () {
+            print('SplashWithAdScreen: Ad display timed out');
+            return false;
+          })
+        ]);
+      } catch (e) {
+        print('SplashWithAdScreen: Error showing ad: $e');
+      }
+      print('SplashWithAdScreen: Rewarded ad completed, reward earned: $rewardEarned');
+    } else {
+      print('SplashWithAdScreen: Ads not initialized or disabled, skipping ad');
+    }
     
     // Mark ad as shown to prevent duplicate navigation
     setState(() {
       _adShown = true;
     });
     
-    // Navigate to main app
+    // Navigate to main app regardless of ad result
     if (mounted) {
       print('SplashWithAdScreen: Navigating to main app');
       Navigator.of(context).pushReplacement(

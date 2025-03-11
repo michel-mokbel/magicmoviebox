@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../services/ads_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CinemasScreen extends StatefulWidget {
   const CinemasScreen({super.key});
@@ -290,7 +291,18 @@ class _CinemasScreenState extends State<CinemasScreen> {
           Container(
             height: 60,
             margin: const EdgeInsets.symmetric(vertical: 8),
-            child: _adsService.showBannerAd(),
+            child: FutureBuilder<bool>(
+              future: _shouldShowBanner(),
+              builder: (context, snapshot) {
+                // Only show banner ad if shouldShowBanner returns true
+                if (snapshot.hasData && snapshot.data == true) {
+                  return _adsService.showBannerAd();
+                } else {
+                  // Return empty space with similar height to prevent layout jumps
+                  return const SizedBox(height: 60);
+                }
+              },
+            ),
           ),
           Expanded(
             child: _isLoading
@@ -422,5 +434,22 @@ class _CinemasScreenState extends State<CinemasScreen> {
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch $url');
     }
+  }
+
+  Future<bool> _shouldShowBanner() async {
+    // Get shared preferences to store/retrieve the banner display counter
+    final prefs = await SharedPreferences.getInstance();
+    
+    // Get the current counter value (default to 0 if not set)
+    int bannerCounter = prefs.getInt('cinemas_banner_counter') ?? 0;
+    
+    // Increment the counter
+    bannerCounter++;
+    
+    // Save the updated counter
+    await prefs.setInt('cinemas_banner_counter', bannerCounter);
+    
+    // Only show banner on even counts (every other launch)
+    return bannerCounter % 2 == 0;
   }
 } 

@@ -86,7 +86,33 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen>
       return;
     }
 
-    // If not a favorite, directly show rewarded ad
+    // Get favorites count to determine if ad should be shown
+    final favoriteCount = await FavoritesService.getFavoritesCount();
+    final shouldShowAd = favoriteCount % 3 == 0; // Only show ad every third favorite
+    
+    print('DEBUG: InfoScreen - Current favorites count: $favoriteCount, should show ad: $shouldShowAd');
+
+    // If ads are not initialized, disabled, or we're not showing an ad this time
+    if (!_adsService.isInitialized || !_adsService.adsEnabled || !shouldShowAd) {
+      print('DEBUG: InfoScreen - Skipping ad, adding directly to favorites');
+      // Add to favorites without showing ad
+      setState(() {
+        _isFavorite = true;
+      });
+      await FavoritesService.addToFavorites(widget.movie);
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Added to Watch Later!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    // If ads are available and we should show an ad, show rewarded ad
     // Show loading indicator
     print('DEBUG: InfoScreen - Showing loading indicator for favorites ad');
     showDialog(
@@ -101,7 +127,18 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen>
 
     // Show rewarded ad
     print('DEBUG: InfoScreen - About to show rewarded ad for favorites');
-    final bool rewardEarned = await _adsService.showRewardedAd();
+    bool rewardEarned = false;
+    try {
+      rewardEarned = await Future.any([
+        _adsService.showRewardedAd(),
+        Future.delayed(const Duration(seconds: 5), () {
+          print('InfoScreen: Ad display timed out for favorites');
+          return false;
+        })
+      ]);
+    } catch (e) {
+      print('InfoScreen: Error showing ad for favorites: $e');
+    }
     print(
         'DEBUG: InfoScreen - Rewarded ad for favorites completed, reward earned: $rewardEarned');
 
@@ -111,34 +148,22 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen>
       Navigator.of(context).pop();
     }
 
-    if (rewardEarned) {
-      // Add to favorites if ad was watched
-      print('DEBUG: InfoScreen - Adding to favorites');
-      setState(() {
-        _isFavorite = true;
-      });
-      await FavoritesService.addToFavorites(widget.movie);
+    // Always add to favorites, even if ad was skipped or failed
+    // This provides a better user experience while still showing ads sometimes
+    print('DEBUG: InfoScreen - Adding to favorites');
+    setState(() {
+      _isFavorite = true;
+    });
+    await FavoritesService.addToFavorites(widget.movie);
 
-      if (context.mounted) {
-        print('DEBUG: InfoScreen - Showing success snackbar');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Added to Watch Later!'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } else {
-      // Show a message if ad failed or was skipped
-      if (context.mounted) {
-        print('DEBUG: InfoScreen - Showing failure snackbar');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please watch the entire ad to add to Watch Later.'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
+    if (context.mounted) {
+      print('DEBUG: InfoScreen - Showing success snackbar');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Added to Watch Later!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -196,11 +221,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen>
       },
     );
 
-    // Show rewarded ad
-    print('DEBUG: InfoScreen - About to show rewarded ad for trailer');
-    final bool rewardEarned = await _adsService.showRewardedAd();
-    print(
-        'DEBUG: InfoScreen - Rewarded ad for trailer completed, reward earned: $rewardEarned');
 
     // Dismiss loading indicator
     if (context.mounted) {
@@ -208,14 +228,9 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen>
       Navigator.of(context).pop();
     }
 
-    if (rewardEarned) {
+    
       print('DEBUG: InfoScreen - Launching YouTube search for: $query');
       _launchYouTubeSearch(query);
-    } else {
-      if (context.mounted) {
-        print('DEBUG: InfoScreen - Showing snackbar: ad not completed');
-      }
-    }
   }
 
   Widget _buildReviewsSection() {

@@ -31,18 +31,24 @@ class AdsService {
   
   // Interstitial cooldown to prevent showing too many ads
   DateTime? _lastInterstitialTime;
-  static const int interstitialCooldownSeconds = 60; // Show max 1 interstitial per minute
+  static const int interstitialCooldownSeconds = 180; // Increased from 60 to 180 seconds
+  
+  // Session-based ad limits
+  int _interstitialAdsShownThisSession = 0;
+  int _rewardedAdsShownThisSession = 0;
+  static const int maxInterstitialAdsPerSession = 5; // Limit total interstitials per session
+  static const int maxRewardedAdsPerSession = 8; // Higher limit for rewarded ads
   
   // Event bus for rewarded ad completion
   final StreamController<bool> _rewardStreamController = StreamController<bool>.broadcast();
   Stream<bool> get onRewardComplete => _rewardStreamController.stream;
   
   // Initialize the Unity Ads SDK
-  Future<void> initialize() async {
+  Future<bool> initialize() async {
     print('DEBUG: AdsService.initialize() called');
     if (_isInitialized) {
       print('DEBUG: Unity Ads already initialized, skipping');
-      return;
+      return true;
     }
     
     try {
@@ -54,7 +60,17 @@ class AdsService {
       print('DEBUG: Starting Unity Ads initialization with game ID: $gameId');
       
       // Create a completer to properly handle the async initialization
-      final completer = Completer<void>();
+      final completer = Completer<bool>();
+      
+      // Add timeout to prevent app from getting stuck
+      // if Unity Ads initialization doesn't respond
+      Timer(const Duration(seconds: 5), () {
+        if (!completer.isCompleted) {
+          print('DEBUG: Unity Ads initialization TIMED OUT after 5 seconds');
+          _isInitialized = false;
+          completer.complete(false);
+        }
+      });
       
       await UnityAds.init(
         gameId: gameId,
@@ -63,11 +79,18 @@ class AdsService {
           _isInitialized = true;
           print('DEBUG: Unity Ads initialization COMPLETE');
           _preloadAds();
-          completer.complete();
+          if (!completer.isCompleted) {
+            completer.complete(true);
+          }
         },
         onFailed: (error, message) {
           print('DEBUG: Unity Ads initialization FAILED: $error $message');
-          completer.completeError('Unity Ads initialization failed: $error $message');
+          // Don't mark as initialized but still complete the future
+          // to allow the app to continue without ads
+          _isInitialized = false;
+          if (!completer.isCompleted) {
+            completer.complete(false);
+          }
         },
       );
       
@@ -75,7 +98,8 @@ class AdsService {
       return completer.future;
     } catch (e) {
       print('DEBUG: Error initializing Unity Ads: $e');
-      throw e; // Re-throw to allow handling of the error in the calling code
+      // Return false instead of throwing, allowing the app to continue
+      return false;
     }
   }
   
@@ -140,6 +164,12 @@ class AdsService {
       return false;
     }
     
+    // Check session-based limit
+    if (_interstitialAdsShownThisSession >= maxInterstitialAdsPerSession) {
+      print('DEBUG: Interstitial ad skipped: session limit reached ($_interstitialAdsShownThisSession/$maxInterstitialAdsPerSession)');
+      return false;
+    }
+    
     // Check cooldown to prevent showing too many ads
     final now = DateTime.now();
     if (_lastInterstitialTime != null) {
@@ -158,6 +188,7 @@ class AdsService {
       onComplete: (placementId) {
         print('DEBUG: Interstitial ad completed: $placementId');
         _lastInterstitialTime = now;
+        _interstitialAdsShownThisSession++;
         _loadInterstitial(); // Preload next ad
         completer.complete(true);
       },
@@ -171,6 +202,7 @@ class AdsService {
       onSkipped: (placementId) {
         print('DEBUG: Interstitial ad skipped: $placementId');
         _lastInterstitialTime = now;
+        _interstitialAdsShownThisSession++;
         completer.complete(false);
       },
     );
@@ -187,6 +219,13 @@ class AdsService {
       return false;
     }
     
+    // Check session-based limit
+    if (_rewardedAdsShownThisSession >= maxRewardedAdsPerSession) {
+      print('DEBUG: Rewarded ad skipped: session limit reached ($_rewardedAdsShownThisSession/$maxRewardedAdsPerSession)');
+      _rewardStreamController.add(true); // Still grant reward if session limit reached
+      return true;
+    }
+    
     final completer = Completer<bool>();
     
     print('DEBUG: Showing rewarded ad with placementId: $rewardedPlacementId');
@@ -195,25 +234,33 @@ class AdsService {
       onComplete: (placementId) {
         print('DEBUG: Rewarded ad completed: $placementId');
         _rewardStreamController.add(true);
+        _rewardedAdsShownThisSession++;
         _loadRewarded(); // Preload next ad
         completer.complete(true);
       },
       onFailed: (placementId, error, message) {
         print('DEBUG: Rewarded ad failed: $placementId $error $message');
-        _rewardStreamController.add(false);
+        _rewardStreamController.add(true); // Grant reward even on failure for better UX
         _loadRewarded(); // Try to reload
-        completer.complete(false);
+        completer.complete(true);
       },
       onStart: (placementId) => print('DEBUG: Rewarded ad started: $placementId'),
       onClick: (placementId) => print('DEBUG: Rewarded ad clicked: $placementId'),
       onSkipped: (placementId) {
         print('DEBUG: Rewarded ad skipped: $placementId');
         _rewardStreamController.add(false);
+        _rewardedAdsShownThisSession++;
         completer.complete(false);
       },
     );
     
     return completer.future;
+  }
+  
+  // Reset session counters (can be called when app starts or at specific times)
+  void resetSessionCounters() {
+    _interstitialAdsShownThisSession = 0;
+    _rewardedAdsShownThisSession = 0;
   }
   
   // Toggle ads state

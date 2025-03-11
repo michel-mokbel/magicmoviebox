@@ -51,9 +51,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   // Show interstitial ad when changing tabs (with some logic to not show too frequently)
   Future<void> _maybeShowInterstitial(int newIndex) async {
-    // Only show interstitial when navigating away from dashboard or every third navigation
-    if ((_previousIndex == 0 && newIndex != 0) || 
-        (currentIndex != newIndex && (DateTime.now().second % 3 == 0))) {
+    // Only show interstitial when navigating from dashboard to another tab,
+    // and only one in every three times to reduce frequency
+    if (_previousIndex == 0 && newIndex != 0 && DateTime.now().second % 3 == 0) {
       await _adsService.showInterstitialAd();
     }
     _previousIndex = currentIndex;
@@ -363,12 +363,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // // Banner Ad
-          // SizedBox(
-          //   height: 50,
-          //   child: _adsService.showBannerAd(),
-          // ),
-          // Navigation Bar
+          // Navigation Bar - Banner ad removed to improve user experience
           Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
