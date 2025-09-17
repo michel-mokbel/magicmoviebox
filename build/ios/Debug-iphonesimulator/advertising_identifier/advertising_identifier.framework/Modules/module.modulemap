@@ -1,6 +1,0 @@
-framework module advertising_identifier {
-  umbrella header "advertising_identifier-umbrella.h"
-
-  export *
-  module * { export * }
-}

@@ -10,11 +10,11 @@
 		</data>
 		<key>flutter_assets/AssetManifest.bin</key>
 		<data>
-		oujT1SKNK6duuzUgDO2pGuKNbdU=
+		c7smOXCNVvxXRqAycJoDRTcjA8M=
 		</data>
 		<key>flutter_assets/AssetManifest.json</key>
 		<data>
-		C6fY/wPp3rlQmWT1Q8C6KPVCUOA=
+		3HE3Z/G11alzClSbE1v48ds6qF8=
 		</data>
 		<key>flutter_assets/FontManifest.json</key>
 		<data>
@@ -22,7 +22,7 @@
 		</data>
 		<key>flutter_assets/NOTICES.Z</key>
 		<data>
-		Cvn4lTyJ+pyYdglngMRKHkcYfhI=
+		WtwcSp0tUWIHWR0azCNLvIfFuv0=
 		</data>
 		<key>flutter_assets/fonts/MaterialIcons-Regular.otf</key>
 		<data>
@@ -34,23 +34,11 @@
 		</data>
 		<key>flutter_assets/kernel_blob.bin</key>
 		<data>
-		zloFocpe8MbumV1ytrR8HQui3Go=
-		</data>
-		<key>flutter_assets/lib/assets/html/privacy_policy_ar.html</key>
-		<data>
-		8RH68OFlwq7MErcFHtefsUqnsjk=
+		HGt4Gie+X34blmRjnenV/EmVjI0=
 		</data>
 		<key>flutter_assets/lib/assets/html/privacy_policy_en.html</key>
 		<data>
-		6IC9yBWHMFp7eFcAGfNFtKjNoTc=
-		</data>
-		<key>flutter_assets/lib/assets/html/privacy_policy_es.html</key>
-		<data>
-		tgwPvEk3oWag9GvjPYbDnkS2XN4=
-		</data>
-		<key>flutter_assets/lib/assets/html/privacy_policy_pl.html</key>
-		<data>
-		IEYgIFv058tNrS4dEKwsQNO7c1o=
+		Er+AM0hChraBfGqaAlMf4Y4tQjk=
 		</data>
 		<key>flutter_assets/lib/assets/images/First.png</key>
 		<data>
@@ -59,6 +47,10 @@
 		<key>flutter_assets/lib/assets/images/Second.png</key>
 		<data>
 		i4Lj5WYGnbXU6ZbVp7VKjvUxAsM=
+		</data>
+		<key>flutter_assets/lib/assets/images/Splash.png</key>
+		<data>
+		63Mw1sX38Pmq9mla6NimSLrPwuA=
 		</data>
 		<key>flutter_assets/lib/assets/images/Third.png</key>
 		<data>
@@ -95,14 +87,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Bnh6BIKlZGsWV0QKKp5mW2euDSDKFZCCm4+fmGbJiDQ=
+			WRIePAGF3VAYO7QCHKZ/DOqhZ9nHcBbsOSF/shanvkc=
 			</data>
 		</dict>
 		<key>flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			c38BsPbTEgG4LnbqX9KmHE95vpfiL93FwLot+h1fyzo=
+			GE+6/5pfPNKp8y7dznwdTVrmwKkVEo02NfnOXqdTZgI=
 			</data>
 		</dict>
 		<key>flutter_assets/FontManifest.json</key>
@@ -116,7 +108,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			G/CoflsNX5X37KJAFKxYvtkshqzRuPPMhlUXHGFs8Hc=
+			1yIdl1QZpaM6+0oXD67NYfJ0qSVNae1W10EGxG6ZuY0=
 			</data>
 		</dict>
 		<key>flutter_assets/fonts/MaterialIcons-Regular.otf</key>
@@ -137,35 +129,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			PXllMU+XirfflkIxX7e4YO0mCyWo6X7qg8/uJXfo3Uk=
-			</data>
-		</dict>
-		<key>flutter_assets/lib/assets/html/privacy_policy_ar.html</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			lmFZ2NAj61fbNRjpc9ekSguvFe0v5dbFwuehAL8rlgA=
+			qJOgLBYnuaf+2QQeUwpfPMirv/y8SXXS+qr4apViwrE=
 			</data>
 		</dict>
 		<key>flutter_assets/lib/assets/html/privacy_policy_en.html</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			+S7LFxPyR05m6pUfH1YhsjtMzaZaGceAdmaKRO95dTw=
-			</data>
-		</dict>
-		<key>flutter_assets/lib/assets/html/privacy_policy_es.html</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			eqv8cVkcQNLhFDLyEX0tqYc+Q5JV1PYqp97+i+OQDk4=
-			</data>
-		</dict>
-		<key>flutter_assets/lib/assets/html/privacy_policy_pl.html</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			hgofi7x3oQN6V9Alg0RbUjFbDotXLj6IBbB9OKWHN+w=
+			YG0d0OFwaj30xcq7THQepiL81HixiOPB8rtcJxdKcxg=
 			</data>
 		</dict>
 		<key>flutter_assets/lib/assets/images/First.png</key>
@@ -180,6 +151,13 @@
 			<key>hash2</key>
 			<data>
 			86J2Xb7JF6Ny67UrdQNCcEM3V/fuGVaAOj0EBnv76mc=
+			</data>
+		</dict>
+		<key>flutter_assets/lib/assets/images/Splash.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			IS1CigTGQrnfjlewbDv7jJmGd2LdkXIS8tArcfiicAo=
 			</data>
 		</dict>
 		<key>flutter_assets/lib/assets/images/Third.png</key>

@@ -10,15 +10,15 @@
 				<string>arm64</string>
 			</array>
 			<key>buildNumber</key>
-			<string>3</string>
+			<string>11</string>
 			<key>certificate</key>
 			<dict>
 				<key>SHA1</key>
-				<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+				<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 				<key>dateExpires</key>
-				<string>29/01/2026</string>
+				<string>14/02/2026</string>
 				<key>type</key>
-				<string>Cloud Managed Apple Distribution</string>
+				<string>Apple Distribution</string>
 			</dict>
 			<key>embeddedBinaries</key>
 			<array>
@@ -32,11 +32,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>App.framework</string>
@@ -62,11 +62,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>FBLPromises.framework</string>
@@ -92,11 +92,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>FirebaseABTesting.framework</string>
@@ -122,11 +122,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>FirebaseCore.framework</string>
@@ -152,11 +152,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>FirebaseCoreInternal.framework</string>
@@ -182,11 +182,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>FirebaseInstallations.framework</string>
@@ -212,11 +212,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>FirebaseRemoteConfig.framework</string>
@@ -242,11 +242,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>FirebaseRemoteConfigInterop.framework</string>
@@ -272,11 +272,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>FirebaseSharedSwift.framework</string>
@@ -302,11 +302,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>Flutter.framework</string>
@@ -332,11 +332,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>GoogleUtilities.framework</string>
@@ -362,14 +362,14 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
-					<string>advertising_identifier.framework</string>
+					<string>app_set_id.framework</string>
 					<key>symbols</key>
 					<true/>
 					<key>team</key>
@@ -380,7 +380,7 @@
 						<string>Haluk SATAN</string>
 					</dict>
 					<key>versionNumber</key>
-					<string>1.0.0</string>
+					<string>1.2.1</string>
 				</dict>
 				<dict>
 					<key>architectures</key>
@@ -392,11 +392,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>app_tracking_transparency.framework</string>
@@ -422,11 +422,131 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>flutter_local_notifications.framework</string>
+					<key>symbols</key>
+					<true/>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>HAF2S6T889</string>
+						<key>name</key>
+						<string>Haluk SATAN</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>0.0.1</string>
+				</dict>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
+						<key>dateExpires</key>
+						<string>14/02/2026</string>
+						<key>type</key>
+						<string>Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>flutter_native_splash.framework</string>
+					<key>symbols</key>
+					<true/>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>HAF2S6T889</string>
+						<key>name</key>
+						<string>Haluk SATAN</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>2.4.3</string>
+				</dict>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
+						<key>dateExpires</key>
+						<string>14/02/2026</string>
+						<key>type</key>
+						<string>Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>geocoding_ios.framework</string>
+					<key>symbols</key>
+					<true/>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>HAF2S6T889</string>
+						<key>name</key>
+						<string>Haluk SATAN</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>1.0.5</string>
+				</dict>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
+						<key>dateExpires</key>
+						<string>14/02/2026</string>
+						<key>type</key>
+						<string>Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>geolocator_apple.framework</string>
+					<key>symbols</key>
+					<true/>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>HAF2S6T889</string>
+						<key>name</key>
+						<string>Haluk SATAN</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>1.2.0</string>
+				</dict>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
+						<key>dateExpires</key>
+						<string>14/02/2026</string>
+						<key>type</key>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>path_provider_foundation.framework</string>
@@ -452,11 +572,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>share_plus.framework</string>
@@ -482,11 +602,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>shared_preferences_foundation.framework</string>
@@ -512,11 +632,41 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>sqflite_darwin.framework</string>
+					<key>symbols</key>
+					<true/>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>HAF2S6T889</string>
+						<key>name</key>
+						<string>Haluk SATAN</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>0.0.4</string>
+				</dict>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
+						<key>dateExpires</key>
+						<string>14/02/2026</string>
+						<key>type</key>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>url_launcher_ios.framework</string>
@@ -542,11 +692,11 @@
 					<key>certificate</key>
 					<dict>
 						<key>SHA1</key>
-						<string>E256E5259E0D3E30BB747F924A27FB81C2D22D53</string>
+						<string>387D389164F1A0838804A24A1F3C1D964F25F773</string>
 						<key>dateExpires</key>
-						<string>29/01/2026</string>
+						<string>14/02/2026</string>
 						<key>type</key>
-						<string>Cloud Managed Apple Distribution</string>
+						<string>Apple Distribution</string>
 					</dict>
 					<key>name</key>
 					<string>webview_flutter_wkwebview.framework</string>
@@ -567,6 +717,8 @@
 			<dict>
 				<key>application-identifier</key>
 				<string>HAF2S6T889.com.appadsrocket.moviemagicbox</string>
+				<key>aps-environment</key>
+				<string>production</string>
 				<key>beta-reports-active</key>
 				<true/>
 				<key>com.apple.developer.team-identifier</key>
@@ -579,9 +731,9 @@
 			<key>profile</key>
 			<dict>
 				<key>UUID</key>
-				<string>edc1b365-62c1-4064-b558-258366f8de4b</string>
+				<string>19049afb-9b88-49cd-977b-47a79ac99307</string>
 				<key>dateExpires</key>
-				<string>29/01/2026</string>
+				<string>14/02/2026</string>
 				<key>name</key>
 				<string>iOS Team Store Provisioning Profile: com.appadsrocket.moviemagicbox</string>
 			</dict>
@@ -595,7 +747,7 @@
 				<string>Haluk SATAN</string>
 			</dict>
 			<key>versionNumber</key>
-			<string>1.0.0</string>
+			<string>1.0.2</string>
 		</dict>
 	</array>
 </dict>

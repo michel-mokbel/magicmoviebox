@@ -13,9 +13,9 @@
 		<key>CFBundleIdentifier</key>
 		<string>com.appadsrocket.moviemagicbox</string>
 		<key>CFBundleShortVersionString</key>
-		<string>1.0.0</string>
+		<string>1.0.2</string>
 		<key>CFBundleVersion</key>
-		<string>1</string>
+		<string>11</string>
 		<key>SigningIdentity</key>
 		<string>Apple Development: Haluk SATAN (52ZP63BA5K)</string>
 		<key>Team</key>
@@ -24,7 +24,7 @@
 	<key>ArchiveVersion</key>
 	<integer>2</integer>
 	<key>CreationDate</key>
-	<date>2025-01-29T14:52:38Z</date>
+	<date>2025-03-11T17:39:02Z</date>
 	<key>Name</key>
 	<string>Runner</string>
 	<key>SchemeName</key>
